@@ -113,7 +113,7 @@ def pull_clusters(filename, cutoff_val, chain_id):
 
    
     for key,val in clusterhyd.items():                             #sum hyd of surrounding
-        clusterhyd[key]=sum(clusterhyd[key])
+        clusterhyd[key]=sum(clusterhyd[key]) #
     
     
     totalhyd = {key: clusterhyd.get(key, 0) + centralhyd.get(key, 0) for key in set(clusterhyd) | set(centralhyd)}      #total hyd  
