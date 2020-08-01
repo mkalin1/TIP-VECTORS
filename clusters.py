@@ -76,13 +76,13 @@ def pull_clusters(filename, cutoff_val, chain_id):
         else:
             cluster_types[i].append("HP")
     
-    
+    print(storetip)
     vec=[]
     c=[]
     for key,value in storetip.items():
         #c.append([[i[0]-j[0]] for i,j in zip(storecalpha[key],storetip[key])])
         c=np.subtract(storecalpha[key],storetip[key])
-        print(c)
+        #print(c)
     
         
     
