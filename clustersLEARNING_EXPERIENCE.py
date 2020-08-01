@@ -35,7 +35,12 @@ def pull_clusters(filename, cutoff_val, chain_id):
     mol=molecule.load_structure(filename)
     coordObj_atoms=[i for i in mol[0].get_calpha()]
     coordObj=[i.get_location() for i in mol[0].get_calpha()]
-    
+    #for i in coordObj_atoms:
+        #print(i.get_location())
+    for i in mol[0].get_residues():
+        f=i.get_tip().get_location()
+        print(i.get_calpha().get_location())
+        #print(f)
     
     distance_mat = squareform(pdist(coordObj))
     n = len(distance_mat)
@@ -43,29 +48,30 @@ def pull_clusters(filename, cutoff_val, chain_id):
     
     store = dict()
     storetip=dict()
-    storecalpha=dict()
     store_center = dict()
     cluster_types = dict()
     retDict = dict()
-
+    #print(coordObj_atoms)
+    #for i in mol[0].get_residues():
+        #print(i.get_name())
     
 
     for i, j in zip(interacting_residue_pairs[0], interacting_residue_pairs[1]):
         try:
             store[i]
             storetip[i]
-            storecalpha[i]
         except KeyError:
             store[i] = list()
             storetip[i]=list()
-            storecalpha[i]=list()
             cluster_types[i] = list()
 
+        
 
 
-        store[i].append(coordObj_atoms[j].get_parent().get_name())                          #dict of cluster w/ resnames
-        storetip[i].append(coordObj_atoms[j].get_parent().get_tip().get_location())            #dict of cluster w/tip coords
-        storecalpha[i].append(coordObj_atoms[j].get_location())           #dict of cluster w/calpha coords
+        
+
+        store[i].append(coordObj_atoms[j].get_parent().get_name())                          #dict of central residue and surrounding cluster
+        storetip[i].append(coordObj_atoms[j].get_parent().get_tip().get_location())
         
         
         
@@ -76,44 +82,46 @@ def pull_clusters(filename, cutoff_val, chain_id):
         else:
             cluster_types[i].append("HP")
     
-    
-    vec=[]
-    c=[]
-    for key,value in storetip.items():
-        #c.append([[i[0]-j[0]] for i,j in zip(storecalpha[key],storetip[key])])
-        c=np.subtract(storecalpha[key],storetip[key])
-        print(c)
-    
-        
-    
-        
+
+    #print(storetip)
     ##########################################################################
     
     #for i in storetip.keys():                       
-        #print(mol[0].get_residues()[i].get_tip().get_location())          s
+        #print(mol[0].get_residues()[i].get_tip().get_location())          
                                     
         
+    ###########################################################################
+   
+
+
+
+    ##########################################################################
     rescount=[]
-    
-    for i in store.keys():                       
-        rescount.append(len(store[i]))                               # number of atoms in cluster
+    centraldict=dict()
+    for i in store.keys():                       # get atom from central residue number
+        centraldict.update({i:mol[0].get_residues()[i].get_name()})          
+        rescount.append(len(store[i])+ 1)                               # number of atoms in cluster
     
     ###########################################################################
    
     clusterhyd=dict()
+    centralhyd=dict()
+    totalhyd=dict()
 
-    clusterhyd = {k: [hydrophobicity.get(v, v) for v in v] for k, v in store.items()}              #hydrophobicity of cluster (list)
+    clusterhyd = {k: [hydrophobicity.get(v, v) for v in v] for k, v in store.items()}              #hydrophobicity of surrounding
+    centralhyd = {k: hydrophobicity.get(v, v) for k, v in centraldict.items()}                     #hydrophobicity of central
 
-
-    for key,val in clusterhyd.items():                             #sum hyd of cluster list
+   
+    for key,val in clusterhyd.items():                             #sum hyd of surrounding
         clusterhyd[key]=sum(clusterhyd[key])
     
     
+    totalhyd = {key: clusterhyd.get(key, 0) + centralhyd.get(key, 0) for key in set(clusterhyd) | set(centralhyd)}      #total hyd  
     hydperc=[]  
     ##########################################################################
 
-    for key,val in clusterhyd.items():
-        hydperc.append(clusterhyd[key]/(5.70*rescount[key]))                                 # % hydrophobicity
+    for key,val in totalhyd.items():
+        hydperc.append(totalhyd[key]/(5.70*rescount[key]))                                 # % hydrophobicity
     
     
     hyddict=dict(zip(hydperc,store.values()))
