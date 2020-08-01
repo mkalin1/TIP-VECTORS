@@ -1,7 +1,7 @@
 from packman import molecule
 from scipy.spatial.distance import pdist, squareform
 import numpy as np
-
+from operator import add
 
 
 
@@ -28,6 +28,9 @@ def pull_clusters(filename, cutoff_val, chain_id):
     'TRP':1.00,
     'TYR':3.20
     }
+
+
+
     HYD = ["GLY", "ALA", "VAL", "LEU", "ISO", "PRO", "PHE", "MET", "TRP"] # Edit this as per your requirement
     mol=molecule.load_structure('5lxw.pdb')
     coordObj_atoms=[i for i in mol[0].get_calpha()]
@@ -35,7 +38,7 @@ def pull_clusters(filename, cutoff_val, chain_id):
     distance_mat = squareform(pdist(coordObj))
     n = len(distance_mat)
     interacting_residue_pairs = np.where( distance_mat <= cutoff_val )
-    centralres=[]
+    
     store = dict()
     store_center = dict()
     cluster_types = dict()
@@ -67,32 +70,41 @@ def pull_clusters(filename, cutoff_val, chain_id):
             cluster_types[i].append("HP")
    
    
-    #print(store)
+   
     #for key,val in HYDval.items():
 
-    newstore=dict()
+
+
+    
+    rescount=[]
+    centraldict=dict()
     for i in store.keys():                       # get atom from central residue number
-        centralres.append(mol[0].get_residues()[i].get_name())
+        centraldict.update({i:mol[0].get_residues()[i].get_name()})          
+        rescount.append(len(store[i])+ 1)                               # number of atoms in cluster
         
-        rescount = len(store[i])+ 1                                # number of atoms in cluster
     
-    #hydrophobicity={value:key for key, value in hydrophobicity.items()}
-    dict3=dict()
-    dict3 = {k: [hydrophobicity.get(v, v) for v in v] for k, v in store.items()}
+   
+    clusterhyd=dict()
+    centralhyd=dict()
+    totalhyd=dict()
 
-    print(dict3)
-        
+    clusterhyd = {k: [hydrophobicity.get(v, v) for v in v] for k, v in store.items()}              #hydrophobicity of surrounding
+    centralhyd = {k: hydrophobicity.get(v, v) for k, v in centraldict.items()}                     #hydrophobicity of central
 
-
-            
+   
+    for key,val in clusterhyd.items():                             #sum hyd of surrounding
+        clusterhyd[key]=sum(clusterhyd[key])
     
-    #print(store)
-            
-
-    #for keys,val in store.items():
-        
-    #hydperc=/(5.70*rescount)
     
+    totalhyd = {key: clusterhyd.get(key, 0) + centralhyd.get(key, 0) for key in set(clusterhyd) | set(centralhyd)}      #total hyd  
+    hydperc=[]  
+   
+    for key,val in totalhyd.items():
+        hydperc.append(totalhyd[key]/(5.70*rescount[key]))                                 # % hydrophobicity
+    
+    
+    hyddict=dict(zip(hydperc,store.values()))
+    print(hyddict)
 
 
     for key, val in store.items():
