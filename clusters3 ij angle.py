@@ -3,7 +3,7 @@ from scipy.spatial.distance import pdist, squareform
 import numpy as np
 from operator import add
 from itertools import combinations
-
+import vg
 
 def pull_clusters(filename, cutoff_val, chain_id):
     hydrophobicity={
@@ -35,8 +35,6 @@ def pull_clusters(filename, cutoff_val, chain_id):
     mol=molecule.load_structure(filename)
     coordObj_atoms=[i for i in mol[0].get_calpha()]
     coordObj=[i.get_location() for i in mol[0].get_calpha()]
-    
-    
     distance_mat = squareform(pdist(coordObj))
     n = len(distance_mat)
     interacting_residue_pairs = np.where( distance_mat <= cutoff_val )
@@ -44,30 +42,33 @@ def pull_clusters(filename, cutoff_val, chain_id):
     store = dict()
     storetip=dict()
     storecalpha=dict()
+    storevec=dict()
     store_center = dict()
     cluster_types = dict()
     retDict = dict()
-
-    
 
     for i, j in zip(interacting_residue_pairs[0], interacting_residue_pairs[1]):
         try:
             store[i]
             storetip[i]
             storecalpha[i]
+            storevec[i]
         except KeyError:
             store[i] = list()
             storetip[i]=list()
             storecalpha[i]=list()
+            storevec[i]=list()
             cluster_types[i] = list()
 
-
-
         store[i].append(coordObj_atoms[j].get_parent().get_name())                          #dict of cluster w/ resnames
+        storevec[i].append([(coordObj_atoms[j].get_location()-coordObj_atoms[j].get_parent().get_tip().get_location()),coordObj_atoms[j].get_parent()])      #stores calpha-tip vctors with mol OBJECT
+        #storevec[i].append([(coordObj_atoms[j].get_location()-coordObj_atoms[j].get_parent().get_tip().get_location()),coordObj_atoms[j].get_parent().get_name()]) #stores calpha-tip vctors with resname
         #storetip[i].append([coordObj_atoms[j].get_parent().get_tip().get_location(),coordObj_atoms[j].get_parent().get_name()])            #dict of cluster w/tip coords
-       # storecalpha[i].append([coordObj_atoms[j].get_location(),coordObj_atoms[j].get_parent().get_name()])           #dict of cluster w/calpha coords
-        storetip[i].append([coordObj_atoms[j].get_parent().get_tip().get_location()])
-        storecalpha[i].append([coordObj_atoms[j].get_location()])
+        storetip[i].append([coordObj_atoms[j].get_parent().get_tip().get_location(),coordObj_atoms[j].get_parent().get_name()])            #dict of cluster w/tip coords and names
+
+        #storecalpha[i].append([coordObj_atoms[j].get_location(),coordObj_atoms[j].get_parent().get_name()])           #dict of cluster w/calpha coords
+        #storetip[i].append([coordObj_atoms[j].get_parent().get_tip().get_location()])
+        #storecalpha[i].append([coordObj_atoms[j].get_location()])
         
         #store[i].append(np.array([coordObj[j][0], coordObj[j][1], coordObj[j][2]]))
 
@@ -76,19 +77,63 @@ def pull_clusters(filename, cutoff_val, chain_id):
         else:
             cluster_types[i].append("HP")
     
-    #print(storetip)
-    vec=[]
     
+    
+    #print(storevec)
     
     output1=list(store.values())
     c=[]
-    for x,val in storetip.items():
+    angles=dict()
+    for i in storevec.keys():
+        try:
+            angles[i]
+        except KeyError:
+            angles[i]=list()
+        for j in range(0,len(storevec[i])):
+            
+            if storevec[i][j][1].get_name()!='GLY' and storevec[i][j][1].get_name()!='ALA':                                            #use mol object instead of name???
+                for k in range(j,len(storevec[i])):
+                    if storevec[i][k][1].get_name()!='GLY' and storevec[i][k][1].get_name()!='ALA':
+                        if k>j:
+                            #print(vg.signed_angle(storevec[i][j][0],storevec[i][k][0], look=vg.basis.z))
+                            
+                            distmin=np.linalg.norm(storetip[i][j][0]-storetip[i][k][0])
+                            print(distmin,storetip[i][j][1],storetip[i][k][1])
+                            
+                            angles[i].append([vg.signed_angle(storevec[i][j][0],storevec[i][k][0], look=vg.basis.z),(distmin),(storevec[i][j][1].get_name(),storevec[i][k][1].get_name())])
+                            print(storevec[i][j][1].get_name(),storevec[i][k][1].get_name())
         
-        #c.append([[i[0]-j[0]] for i,j in zip(storecalpha[key],storetip[key])])
-        #c=np.subtract(storecalpha[x],val[0])
-        print(val[0])
-        
-        vec.append(c)
+                #print(storevec[i][j+1<len(storevec[i])][0],storevec[i][j+1<len(storevec[i])][1])
+                    #print(storevec[i][j][0],storevec[i][j][1])
+
+                #print(storevec[i][j][0])
+        #print("\n")
+                    #print((vg.signed_angle(storevec[i][j][0],storevec[i][k][0], look=vg.basis.z)))
+    #print(angles)
+    
+    for key,val in storevec.items():
+        #print(storevec[i][0][0])
+        length=len(storevec[key])
+        #print(storevec[key])
+        #print(length)
+        '''
+        for j in range(0,length):
+            print(storevec[i][j][0])
+            
+            for k in range(j,length):
+               angle = vg.signed_angle(storevec[i][j][0],storevec[i][k][0], look=vg.basis.z)
+               print(angle)
+               print(storevec[i][j][1])
+            print("\n") 
+            '''
+                
+                
+            
+            #angle = vg.signed_angle(numi,i, look=vg.basis.z)
+            #if angle < 0:
+                #angle = angle+360
+    
+    '''
     resname=dict()
     
     for numi,i in enumerate(vec): 
@@ -96,9 +141,9 @@ def pull_clusters(filename, cutoff_val, chain_id):
         resname[numi]=dict()                                               #dictionary in dictionary
         for numj, j in enumerate(i): 
             resname[numi][str(j)]=output1[numi][numj]
-    #print(resname.values())
     
-    for numi,i in enumerate(vec):
+    '''
+    for numi,i in enumerate(storevec.values()):
         comb=combinations(i,2)                                             # print([x for x in comb]) to print array of lists 
         
         

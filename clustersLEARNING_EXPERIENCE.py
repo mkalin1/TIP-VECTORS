@@ -55,7 +55,7 @@ def pull_clusters(filename, cutoff_val, chain_id):
     #for i in mol[0].get_residues():
         #print(i.get_name())
     
-
+    print(store)
     for i, j in zip(interacting_residue_pairs[0], interacting_residue_pairs[1]):
         try:
             store[i]
