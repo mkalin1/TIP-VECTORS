@@ -76,13 +76,32 @@ def pull_clusters(filename, cutoff_val, chain_id):
             cluster_types[i].append("HB")
         else:
             cluster_types[i].append("HP")
+   
+ 
+    ##########################################################################
+    
+    #for i in storetip.keys():                       
+        #print(mol[0].get_residues()[i].get_tip().get_location())          s
+    
+    rescount=[]
+    for i in store.keys():                       
+        rescount.append(len(store[i]))                               # number of atoms in cluster
+    
+    ###########################################################################
+    clusterhyd=dict()
+    clusterhyd = {k: [hydrophobicity.get(v, v) for v in v] for k, v in store.items()}              #hydrophobicity of cluster (list)
+    for key,val in clusterhyd.items():                                                              #sum hyd of cluster list
+        clusterhyd[key]=sum(clusterhyd[key])
+    ##########################################################################
+    hydperc=[]  
+    for key,val in clusterhyd.items():
+        hydperc.append(clusterhyd[key]/(5.70*rescount[key]))                                 # % hydrophobicity
+        
+    
+    hyddict=dict(zip(hydperc,store.values()))
     
     
-    
-    #print(storevec)
-    
-    output1=list(store.values())
-    c=[]
+       ###################################################################################################             creating dict of [key]:[[angle],[distmin],[(respair)]]
     angles=dict()
     for i in storevec.keys():
         try:
@@ -90,101 +109,36 @@ def pull_clusters(filename, cutoff_val, chain_id):
         except KeyError:
             angles[i]=list()
         for j in range(0,len(storevec[i])):
-            
             if storevec[i][j][1].get_name()!='GLY' and storevec[i][j][1].get_name()!='ALA':                                            #use mol object instead of name???
                 for k in range(j,len(storevec[i])):
                     if storevec[i][k][1].get_name()!='GLY' and storevec[i][k][1].get_name()!='ALA':
                         if k>j:
-                            #print(vg.signed_angle(storevec[i][j][0],storevec[i][k][0], look=vg.basis.z))
-                            
                             distmin=np.linalg.norm(storetip[i][j][0]-storetip[i][k][0])
-                            print(distmin,storetip[i][j][1],storetip[i][k][1])
-                            
-                            angles[i].append([vg.signed_angle(storevec[i][j][0],storevec[i][k][0], look=vg.basis.z),(distmin),(storevec[i][j][1].get_name(),storevec[i][k][1].get_name())])
-                            print(storevec[i][j][1].get_name(),storevec[i][k][1].get_name())
-        
+                            angle=vg.signed_angle(storevec[i][j][0],storevec[i][k][0], look=vg.basis.z)
+                            if angle < 0:
+                                angle = angle+360
+                            hydclust=hydperc[i]
+                            angles[i].append([(angle),(distmin),(hydclust),(storevec[i][j][1].get_name(),storevec[i][k][1].get_name())])
+                            #print(distmin,storetip[i][j][1],storetip[i][k][1])
+                            #print(vg.signed_angle(storevec[i][j][0],storevec[i][k][0], look=vg.basis.z))
+                            #print(storevec[i][j][1].get_name(),storevec[i][k][1].get_name())
                 #print(storevec[i][j+1<len(storevec[i])][0],storevec[i][j+1<len(storevec[i])][1])
                     #print(storevec[i][j][0],storevec[i][j][1])
-
                 #print(storevec[i][j][0])
         #print("\n")
                     #print((vg.signed_angle(storevec[i][j][0],storevec[i][k][0], look=vg.basis.z)))
-    #print(angles)
-    
-    for key,val in storevec.items():
-        #print(storevec[i][0][0])
-        length=len(storevec[key])
-        #print(storevec[key])
-        #print(length)
-        '''
-        for j in range(0,length):
-            print(storevec[i][j][0])
-            
-            for k in range(j,length):
-               angle = vg.signed_angle(storevec[i][j][0],storevec[i][k][0], look=vg.basis.z)
-               print(angle)
-               print(storevec[i][j][1])
-            print("\n") 
-            '''
-                
-                
-            
-            #angle = vg.signed_angle(numi,i, look=vg.basis.z)
-            #if angle < 0:
-                #angle = angle+360
-    
-    '''
-    resname=dict()
-    
-    for numi,i in enumerate(vec): 
-        
-        resname[numi]=dict()                                               #dictionary in dictionary
-        for numj, j in enumerate(i): 
-            resname[numi][str(j)]=output1[numi][numj]
-    
-    '''
-    for numi,i in enumerate(storevec.values()):
-        comb=combinations(i,2)                                             # print([x for x in comb]) to print array of lists 
-        
-        
-       # for el in comb:
-            #print(el[0],resname[numi][str(el[0])])
-            #print(el[1],resname[numi][str(el[1])])
-              
-    
-    
-    ##########################################################################
-    
-    #for i in storetip.keys():                       
-        #print(mol[0].get_residues()[i].get_tip().get_location())          s
-                                    
-        
-    rescount=[]
-    
-    for i in store.keys():                       
-        rescount.append(len(store[i]))                               # number of atoms in cluster
-    
-    ###########################################################################
-   
-    clusterhyd=dict()
 
-    clusterhyd = {k: [hydrophobicity.get(v, v) for v in v] for k, v in store.items()}              #hydrophobicity of cluster (list)
+    for i in angles.keys():
+        print(angles[i])
+
+   ##############################################################################################################
+    #hydtip=dict(zip(hydperc,angles.values()))
+    #print(hydperc)
 
 
-    for key,val in clusterhyd.items():                             #sum hyd of cluster list
-        clusterhyd[key]=sum(clusterhyd[key])
-    
-    
-    hydperc=[]  
-    ##########################################################################
 
-    for key,val in clusterhyd.items():
-        hydperc.append(clusterhyd[key]/(5.70*rescount[key]))                                 # % hydrophobicity
-    
-    
-    hyddict=dict(zip(hydperc,store.values()))
-   
-    ##########################################################################
+
+    #############################################################################################################
 
     for key, val in store.items():
         try:
