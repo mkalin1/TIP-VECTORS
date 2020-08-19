@@ -60,11 +60,11 @@ def pull_clusters(filename, cutoff_val, chain_id):
             storevec[i]=list()
             cluster_types[i] = list()
 
-        store[i].append(coordObj_atoms[j].get_parent().get_name())                          #dict of cluster w/ resnames
-        storevec[i].append([(coordObj_atoms[j].get_location()-coordObj_atoms[j].get_parent().get_tip().get_location()),coordObj_atoms[j].get_parent()])      #stores calpha-tip vctors with mol OBJECT
+        store[coordObj_atoms[i]].append(coordObj_atoms[j].get_parent().get_name())                          #dict of cluster w/ resnames
+        storevec[coordObj_atoms[i]].append([(coordObj_atoms[j].get_location()-coordObj_atoms[j].get_parent().get_tip().get_location()),coordObj_atoms[j].get_parent()])      #stores calpha-tip vctors with mol OBJECT
         #storevec[i].append([(coordObj_atoms[j].get_location()-coordObj_atoms[j].get_parent().get_tip().get_location()),coordObj_atoms[j].get_parent().get_name()]) #stores calpha-tip vctors with resname
         #storetip[i].append([coordObj_atoms[j].get_parent().get_tip().get_location(),coordObj_atoms[j].get_parent().get_name()])            #dict of cluster w/tip coords
-        storetip[i].append([coordObj_atoms[j].get_parent().get_tip().get_location(),coordObj_atoms[j].get_parent().get_name()])            #dict of cluster w/tip coords and names
+        storetip[coordObj_atoms[i]].append([coordObj_atoms[j].get_parent().get_tip().get_location(),coordObj_atoms[j].get_parent().get_name()])            #dict of cluster w/tip coords and names
 
         #storecalpha[i].append([coordObj_atoms[j].get_location(),coordObj_atoms[j].get_parent().get_name()])           #dict of cluster w/calpha coords
         #storetip[i].append([coordObj_atoms[j].get_parent().get_tip().get_location()])
@@ -130,6 +130,7 @@ def pull_clusters(filename, cutoff_val, chain_id):
 
     for i in angles.keys():
         print(angles[i])
+        print("\n")
 
    ##############################################################################################################
     #hydtip=dict(zip(hydperc,angles.values()))

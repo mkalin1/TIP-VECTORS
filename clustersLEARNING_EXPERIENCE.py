@@ -39,7 +39,7 @@ def pull_clusters(filename, cutoff_val, chain_id):
         #print(i.get_location())
     for i in mol[0].get_residues():
         f=i.get_tip().get_location()
-        print(i.get_calpha().get_location())
+        #print(i.get_calpha().get_location())
         #print(f)
     
     distance_mat = squareform(pdist(coordObj))
@@ -55,7 +55,7 @@ def pull_clusters(filename, cutoff_val, chain_id):
     #for i in mol[0].get_residues():
         #print(i.get_name())
     
-    print(store)
+    
     for i, j in zip(interacting_residue_pairs[0], interacting_residue_pairs[1]):
         try:
             store[i]
@@ -70,8 +70,8 @@ def pull_clusters(filename, cutoff_val, chain_id):
 
         
 
-        store[i].append(coordObj_atoms[j].get_parent().get_name())                          #dict of central residue and surrounding cluster
-        storetip[i].append(coordObj_atoms[j].get_parent().get_tip().get_location())
+        store[coordObj_atoms[i]].append(coordObj_atoms[j].get_parent().get_name())                          #dict of central residue and surrounding cluster
+        storetip[coordObj_atoms[i]].append(coordObj_atoms[j].get_parent().get_tip().get_location())
         
         
         
