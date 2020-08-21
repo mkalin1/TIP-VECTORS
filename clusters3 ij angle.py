@@ -50,17 +50,17 @@ def pull_clusters(filename, cutoff_val, chain_id):
     for i, j in zip(interacting_residue_pairs[0], interacting_residue_pairs[1]):
         try:
             store[i]
-            storetip[i]
-            storecalpha[i]
-            storevec[i]
+            storetip[coordObj_atoms[i]]
+            storecalpha[coordObj_atoms[i]]
+            storevec[coordObj_atoms[i]]
         except KeyError:
             store[i] = list()
-            storetip[i]=list()
-            storecalpha[i]=list()
-            storevec[i]=list()
+            storetip[coordObj_atoms[i]]=list()
+            storecalpha[coordObj_atoms[i]]=list()
+            storevec[coordObj_atoms[i]]=list()
             cluster_types[i] = list()
-
-        store[coordObj_atoms[i]].append(coordObj_atoms[j].get_parent().get_name())                          #dict of cluster w/ resnames
+        
+        store[i].append(coordObj_atoms[j].get_parent().get_name())                          #dict of cluster w/ resnames
         storevec[coordObj_atoms[i]].append([(coordObj_atoms[j].get_location()-coordObj_atoms[j].get_parent().get_tip().get_location()),coordObj_atoms[j].get_parent()])      #stores calpha-tip vctors with mol OBJECT
         #storevec[i].append([(coordObj_atoms[j].get_location()-coordObj_atoms[j].get_parent().get_tip().get_location()),coordObj_atoms[j].get_parent().get_name()]) #stores calpha-tip vctors with resname
         #storetip[i].append([coordObj_atoms[j].get_parent().get_tip().get_location(),coordObj_atoms[j].get_parent().get_name()])            #dict of cluster w/tip coords
@@ -76,8 +76,9 @@ def pull_clusters(filename, cutoff_val, chain_id):
             cluster_types[i].append("HB")
         else:
             cluster_types[i].append("HP")
-   
- 
+    for i in storetip.keys():
+        print(i.get_parent().get_tip().get_location())
+    
     ##########################################################################
     
     #for i in storetip.keys():                       
@@ -86,6 +87,7 @@ def pull_clusters(filename, cutoff_val, chain_id):
     rescount=[]
     for i in store.keys():                       
         rescount.append(len(store[i]))                               # number of atoms in cluster
+        
     
     ###########################################################################
     clusterhyd=dict()
@@ -96,18 +98,23 @@ def pull_clusters(filename, cutoff_val, chain_id):
     hydperc=[]  
     for key,val in clusterhyd.items():
         hydperc.append(clusterhyd[key]/(5.70*rescount[key]))                                 # % hydrophobicity
-        
     
+
+   # for i in storetip.keys():
+       # print(i)
+
     hyddict=dict(zip(hydperc,store.values()))
     
     
        ###################################################################################################             creating dict of [key]:[[angle],[distmin],[(respair)]]
     angles=dict()
+    print(storevec)
     for i in storevec.keys():
         try:
             angles[i]
         except KeyError:
             angles[i]=list()
+        
         for j in range(0,len(storevec[i])):
             if storevec[i][j][1].get_name()!='GLY' and storevec[i][j][1].get_name()!='ALA':                                            #use mol object instead of name???
                 for k in range(j,len(storevec[i])):
@@ -117,7 +124,8 @@ def pull_clusters(filename, cutoff_val, chain_id):
                             angle=vg.signed_angle(storevec[i][j][0],storevec[i][k][0], look=vg.basis.z)
                             if angle < 0:
                                 angle = angle+360
-                            hydclust=hydperc[i]
+                            hydclust=hydperc[i.get_parent().get_id()-1]
+                            
                             angles[i].append([(angle),(distmin),(hydclust),(storevec[i][j][1].get_name(),storevec[i][k][1].get_name())])
                             #print(distmin,storetip[i][j][1],storetip[i][k][1])
                             #print(vg.signed_angle(storevec[i][j][0],storevec[i][k][0], look=vg.basis.z))
@@ -128,9 +136,9 @@ def pull_clusters(filename, cutoff_val, chain_id):
         #print("\n")
                     #print((vg.signed_angle(storevec[i][j][0],storevec[i][k][0], look=vg.basis.z)))
 
-    for i in angles.keys():
-        print(angles[i])
-        print("\n")
+    #for i in angles.keys():
+        #print(angles[i])
+        #print("\n")
 
    ##############################################################################################################
     #hydtip=dict(zip(hydperc,angles.values()))
