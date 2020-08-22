@@ -6,6 +6,9 @@ from itertools import combinations
 import vg
 from matplotlib import pyplot as plt
 import seaborn as sns
+import os.path 
+from os import path
+import math
 
 def pull_clusters(filename, cutoff_val, chain_id):
     hydrophobicity={
@@ -64,11 +67,11 @@ def pull_clusters(filename, cutoff_val, chain_id):
         
         
         store[i].append(coordObj_atoms[j].get_parent().get_name())                          #dict of cluster w/ resnames
-        
-        storevec[coordObj_atoms[i]].append([(coordObj_atoms[j].get_location()-coordObj_atoms[j].get_parent().get_tip().get_location()),coordObj_atoms[j].get_parent()])      #stores calpha-tip vctors with mol OBJECT
-        #storevec[i].append([(coordObj_atoms[j].get_location()-coordObj_atoms[j].get_parent().get_tip().get_location()),coordObj_atoms[j].get_parent().get_name()]) #stores calpha-tip vctors with resname
-        #storetip[i].append([coordObj_atoms[j].get_parent().get_tip().get_location(),coordObj_atoms[j].get_parent().get_name()])            #dict of cluster w/tip coords
-        storetip[coordObj_atoms[i]].append([coordObj_atoms[j].get_parent().get_tip().get_location(),coordObj_atoms[j]])            #dict of cluster w/tip coords and names
+        if i>=j:
+            storevec[coordObj_atoms[i]].append([(coordObj_atoms[j].get_location()-coordObj_atoms[j].get_parent().get_tip().get_location()),coordObj_atoms[j].get_parent()])      #stores calpha-tip vctors with mol OBJECT
+            #storevec[i].append([(coordObj_atoms[j].get_location()-coordObj_atoms[j].get_parent().get_tip().get_location()),coordObj_atoms[j].get_parent().get_name()]) #stores calpha-tip vctors with resname
+            #storetip[i].append([coordObj_atoms[j].get_parent().get_tip().get_location(),coordObj_atoms[j].get_parent().get_name()])            #dict of cluster w/tip coords
+            storetip[coordObj_atoms[i]].append([coordObj_atoms[j].get_parent().get_tip().get_location(),coordObj_atoms[j]])            #dict of cluster w/tip coords and names
         
         #storecalpha[i].append([coordObj_atoms[j].get_location(),coordObj_atoms[j].get_parent().get_name()])           #dict of cluster w/calpha coords
         #storetip[i].append([coordObj_atoms[j].get_parent().get_tip().get_location()])
@@ -173,7 +176,7 @@ def pull_clusters(filename, cutoff_val, chain_id):
                         #print((vg.signed_angle(storevec[i][j][0],storevec[i][k][0], look=vg.basis.z)))
     this=[]
     
-    '''
+    
     for i in angles.keys():
         for j in range(0,len(angles[i])):
             key=sorted(angles[i][j][3])
@@ -184,9 +187,8 @@ def pull_clusters(filename, cutoff_val, chain_id):
             except:
                 fdict[ key[0]+'-'+key[1] ]=[]
                 fdict[ key[0]+'-'+key[1] ].append(this)
-    '''
     
-    
+ 
 
 
     
@@ -203,90 +205,92 @@ def pull_clusters(filename, cutoff_val, chain_id):
     nzeros=[]
     nten=[]
     ntwenty=[]
-    
+    nthirty=[]
     anglesdists=[]
-    fortyD=dict()
+    
 
 
     
-    for i in angles.keys():
-        for j in range(0,len(angles[i])):
-            if angles[i][j][0]==0.0:
+    for i in fdict.keys():
+        for j in range(0,len(fdict[i])):
+            if fdict[i][j][0]==0.0:
                 continue
             else:
-                
-                if 0.9<angles[i][j][2]<1:
-                    anglesdists=(angles[i][j][0],angles[i][j][1])
+                if 0.9<fdict[i][j][2]<1:
+                    anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
                     ninty.append(anglesdists)
-                if 0.8<angles[i][j][2]<0.9:
-                    anglesdists=(angles[i][j][0],angles[i][j][1])
+                if 0.8<fdict[i][j][2]<0.9:
+                    anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
                     eighty.append(anglesdists)
-                if 0.7<angles[i][j][2]<0.8:  
-                    anglesdists=(angles[i][j][0],angles[i][j][1])
+                if 0.7<fdict[i][j][2]<0.8:  
+                    anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
                     seventy.append(anglesdists)
-                if 0.6<angles[i][j][2]<0.7:
-                    anglesdists=(angles[i][j][0],angles[i][j][1])
+                if 0.6<fdict[i][j][2]<0.7:
+                    anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
                     sixty.append(anglesdists)
-                if 0.5<angles[i][j][2]<0.6:
-                    anglesdists=(angles[i][j][0],angles[i][j][1])
+                if 0.5<fdict[i][j][2]<0.6:
+                    anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
                     fifty.append(anglesdists)
-                if 0.4<angles[i][j][2]<0.5:
+                if 0.4<fdict[i][j][2]<0.5:
+                    anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
+                    forty.append(anglesdists)
                     
-                    print(angles[i][j])
-                    anglesdists=(angles[i][j][0],angles[i][j][1])
-                    key=sorted(angles[i][j][3])
-                    try:
-                        fdict[ key[0]+'-'+key[1] ].append(angles[i])
-                    except:
-                        fdict[ key[0]+'-'+key[1] ]=[]
-                        fdict[ key[0]+'-'+key[1] ].append(angles[i])
-                    
-                    
-                    
-                if 0.3<angles[i][j][2]<0.4:
-                    anglesdists=(angles[i][j][0],angles[i][j][1])
+                if 0.3<fdict[i][j][2]<0.4:
+                    anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
                     thirty.append(anglesdists)
-                if 0.2<angles[i][j][2]<0.3:
-                    anglesdists=(angles[i][j][0],angles[i][j][1])
-                    
-
-                if 0.1<angles[i][j][2]<0.2:
-                    anglesdists=(angles[i][j][0],angles[i][j][1])
+                if 0.2<fdict[i][j][2]<0.3:
+                    anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
+                    twenty.append(anglesdists)
+                if 0.1<fdict[i][j][2]<0.2:
+                    anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
                     ten.append(anglesdists)
-                if 0<angles[i][j][2]<0.1:
-                    anglesdists=(angles[i][j][0],angles[i][j][1])
+                if 0<fdict[i][j][2]<0.1:
+                    anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
                     zeros.append(anglesdists)
-                if -0.1<angles[i][j][2]<0:
-                    anglesdists=(angles[i][j][0],angles[i][j][1])
+                if -0.1<fdict[i][j][2]<0:
+                    
+                    anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
                     nzeros.append(anglesdists)
-                if -0.2<angles[i][j][2]<-0.1:
-                    anglesdists=(angles[i][j][0],angles[i][j][1])
+                if -0.2<fdict[i][j][2]<-0.1:
+                    anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
                     nten.append(anglesdists)
-                if -0.3<angles[i][j][2]<-0.2:
-                    anglesdists=(angles[i][j][0],angles[i][j][1])
+                if -0.3<fdict[i][j][2]<-0.2:
+                    anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
                     ntwenty.append(anglesdists)
-
+                if -0.4<fdict[i][j][2]<-0.3:
+                    anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
+                    nthirty.append(anglesdists)
     
-'''
-    for i in fortyD.keys():
-       for j in range(0,len(fortyD[i])):
-           for k in range(0,len(fortyD[i])):
-                if j<k:
-                    if fortyD[i][j][1]==fortyD[i][k][1]:
-                        print(fortyD[i][j],fortyD[i][k])
-'''
     
 
-    #for i in angles.keys():
-        #print(i.get_parent().get_id())
-    #print(angles)
+    fulldict={'ninty':ninty,'eighty':eighty,'seventy':seventy,'sixty':sixty,'fifty':fifty,'forty':forty,'thirty':thirty,'twenty':twenty,'ten':ten,'zeros':zeros,'nzeros':nzeros,'nten':nten,'ntwenty':ntwenty,'nthirty':nthirty}
     
-'''   
-    for i in angles.keys():
-        print(angles[i])
-        print("\n")
+    
+    addition = np.zeros(shape=(360, 24))
 
+    for i in fulldict.keys():
+        for j in fulldict[i]:
+            x=[j[0]]
+            y=[j[1]]
+            z=j[2]
+            
+            mtx=np.histogram2d(x,y,bins=(360, 24),range=[[0,360],[0,12]])
+            
 
+            if path.exists(i + ' ' + z):
+                full = np.loadtxt(i + ' ' + z)
+                addition=np.add(mtx[0],full)
+            else:
+                addition=mtx[0]
+            
+        
+            np.savetxt(i + ' ' + z,addition,fmt='%i')
+    
+        #for i in angles.keys():
+            #print(i.get_parent().get_id())
+        #print(angles)
+    
+    print(k)
     #############################################################################################################
 
     for key, val in store.items():
@@ -297,10 +301,21 @@ def pull_clusters(filename, cutoff_val, chain_id):
             retDict[str(cluster_types[key].count("HB"))+"/"+str(cluster_types[key].count("HP"))].append(val)
             
     return retDict
-'''
 
 
-out = pull_clusters("5lxw.pdb", 7.0, "A") #Here are all your clusters with ids -number of hydrophobic residue/number of hydrophilic residues
+
+with open('namestring.txt', 'r') as f:              #txt of all pdb file names to download
+    namestring=f.read().split(",")
+    
+
+
+leng=len(namestring)
+names=[]
+for i in range(0,leng):
+    names.append(namestring[i])
+    
+for k in names:   
+    out = pull_clusters(k+'.pdb', 12.0, "A") #Here are all your clusters with ids -number of hydrophobic residue/number of hydrophilic residues
 
 
 # This is for one PDB id. You can collect this for many pdb ids and merge the clusters.

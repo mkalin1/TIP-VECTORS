@@ -65,10 +65,11 @@ def pull_clusters(filename, cutoff_val, chain_id):
         
         store[i].append(coordObj_atoms[j].get_parent().get_name())                          #dict of cluster w/ resnames
         
-        storevec[coordObj_atoms[i]].append([(coordObj_atoms[j].get_location()-coordObj_atoms[j].get_parent().get_tip().get_location()),coordObj_atoms[j].get_parent()])      #stores calpha-tip vctors with mol OBJECT
-        #storevec[i].append([(coordObj_atoms[j].get_location()-coordObj_atoms[j].get_parent().get_tip().get_location()),coordObj_atoms[j].get_parent().get_name()]) #stores calpha-tip vctors with resname
-        #storetip[i].append([coordObj_atoms[j].get_parent().get_tip().get_location(),coordObj_atoms[j].get_parent().get_name()])            #dict of cluster w/tip coords
-        storetip[coordObj_atoms[i]].append([coordObj_atoms[j].get_parent().get_tip().get_location(),coordObj_atoms[j]])            #dict of cluster w/tip coords and names
+        if i>=j:
+            storevec[coordObj_atoms[i]].append([(coordObj_atoms[j].get_location()-coordObj_atoms[j].get_parent().get_tip().get_location()),coordObj_atoms[j].get_parent()])      #stores calpha-tip vctors with mol OBJECT
+            #storevec[i].append([(coordObj_atoms[j].get_location()-coordObj_atoms[j].get_parent().get_tip().get_location()),coordObj_atoms[j].get_parent().get_name()]) #stores calpha-tip vctors with resname
+            #storetip[i].append([coordObj_atoms[j].get_parent().get_tip().get_location(),coordObj_atoms[j].get_parent().get_name()])            #dict of cluster w/tip coords
+            storetip[coordObj_atoms[i]].append([coordObj_atoms[j].get_parent().get_tip().get_location(),coordObj_atoms[j]])            #dict of cluster w/tip coords and names
         
         #storecalpha[i].append([coordObj_atoms[j].get_location(),coordObj_atoms[j].get_parent().get_name()])           #dict of cluster w/calpha coords
         #storetip[i].append([coordObj_atoms[j].get_parent().get_tip().get_location()])
@@ -171,9 +172,9 @@ def pull_clusters(filename, cutoff_val, chain_id):
                         #print(storevec[i][j][0])
                         #print("\n")
                         #print((vg.signed_angle(storevec[i][j][0],storevec[i][k][0], look=vg.basis.z)))
-    this=[]
     
-    '''
+    this=[]
+
     for i in angles.keys():
         for j in range(0,len(angles[i])):
             key=sorted(angles[i][j][3])
@@ -184,89 +185,119 @@ def pull_clusters(filename, cutoff_val, chain_id):
             except:
                 fdict[ key[0]+'-'+key[1] ]=[]
                 fdict[ key[0]+'-'+key[1] ].append(this)
-    '''
-    
-    
+        
 
 
     
-    ninty=[]
-    eighty=[]
-    seventy=[]
-    sixty=[]
-    fifty=[]
-    forty=[]
-    thirty=[]
-    twenty=[]
-    ten=[]
-    zeros=[]
-    nzeros=[]
-    nten=[]
-    ntwenty=[]
-    
+    ninty=dict()
+    eighty=dict()
+    seventy=dict()
+    sixty=dict()
+    fifty=dict()
+    forty=dict()
+    thirty=dict()
+    twenty=dict()
+    ten=dict()
+    zeros=dict()
+    nzeros=dict()
+    nten=dict()
+    ntwenty=dict()
+    nthirty=dict()
     anglesdists=[]
-    fortyD=dict()
-
-
     
-    for i in angles.keys():
-        for j in range(0,len(angles[i])):
-            if angles[i][j][0]==0.0:
+    
+
+    for i in fdict.keys():
+        try:
+            ninty[i]
+            eighty[i]
+            seventy[i]
+            sixty[i]
+            fifty[i]
+            forty[i]
+            thirty[i]
+            twenty[i]
+            ten[i]
+            zeros[i]
+            nzeros[i]
+            nten[i]
+            ntwenty[i]
+            nthirty[i]
+        except KeyError:
+            ninty[i]=list()
+            eighty[i]=list()
+            seventy[i]=list()
+            sixty[i]=list()
+            fifty[i]=list()
+            forty[i]=list()
+            thirty[i]=list()
+            twenty[i]=list()
+            ten[i]=list()
+            zeros[i]=list()
+            nzeros[i]=list()
+            nten[i]=list()
+            ntwenty[i]=list()
+            nthirty[i]=list()
+        for j in range(0,len(fdict[i])):
+            if fdict[i][j][0]==0.0:
                 continue
             else:
-                
-                if 0.9<angles[i][j][2]<1:
-                    anglesdists=(angles[i][j][0],angles[i][j][1])
-                    ninty.append(anglesdists)
-                if 0.8<angles[i][j][2]<0.9:
-                    anglesdists=(angles[i][j][0],angles[i][j][1])
-                    eighty.append(anglesdists)
-                if 0.7<angles[i][j][2]<0.8:  
-                    anglesdists=(angles[i][j][0],angles[i][j][1])
-                    seventy.append(anglesdists)
-                if 0.6<angles[i][j][2]<0.7:
-                    anglesdists=(angles[i][j][0],angles[i][j][1])
-                    sixty.append(anglesdists)
-                if 0.5<angles[i][j][2]<0.6:
-                    anglesdists=(angles[i][j][0],angles[i][j][1])
-                    fifty.append(anglesdists)
-                if 0.4<angles[i][j][2]<0.5:
-                    
-                    print(angles[i][j])
-                    anglesdists=(angles[i][j][0],angles[i][j][1])
-                    key=sorted(angles[i][j][3])
-                    try:
-                        fdict[ key[0]+'-'+key[1] ].append(angles[i])
-                    except:
-                        fdict[ key[0]+'-'+key[1] ]=[]
-                        fdict[ key[0]+'-'+key[1] ].append(angles[i])
-                    
-                    
-                    
-                if 0.3<angles[i][j][2]<0.4:
-                    anglesdists=(angles[i][j][0],angles[i][j][1])
-                    thirty.append(anglesdists)
-                if 0.2<angles[i][j][2]<0.3:
-                    anglesdists=(angles[i][j][0],angles[i][j][1])
-                    
-
-                if 0.1<angles[i][j][2]<0.2:
-                    anglesdists=(angles[i][j][0],angles[i][j][1])
-                    ten.append(anglesdists)
-                if 0<angles[i][j][2]<0.1:
-                    anglesdists=(angles[i][j][0],angles[i][j][1])
-                    zeros.append(anglesdists)
-                if -0.1<angles[i][j][2]<0:
-                    anglesdists=(angles[i][j][0],angles[i][j][1])
-                    nzeros.append(anglesdists)
-                if -0.2<angles[i][j][2]<-0.1:
-                    anglesdists=(angles[i][j][0],angles[i][j][1])
-                    nten.append(anglesdists)
-                if -0.3<angles[i][j][2]<-0.2:
-                    anglesdists=(angles[i][j][0],angles[i][j][1])
-                    ntwenty.append(anglesdists)
+                if 0.9<fdict[i][j][2]<1:
+                    anglesdists=(fdict[i][j][0],fdict[i][j][1])
+                    ninty[i].append(anglesdists)
+                if 0.8<fdict[i][j][2]<0.9:
+                    anglesdists=(fdict[i][j][0],fdict[i][j][1])
+                    eighty[i].append(anglesdists)
+                if 0.7<fdict[i][j][2]<0.8:  
+                    anglesdists=(fdict[i][j][0],fdict[i][j][1])
+                    seventy[i].append(anglesdists)
+                if 0.6<fdict[i][j][2]<0.7:
+                    anglesdists=(fdict[i][j][0],fdict[i][j][1])
+                    sixty[i].append(anglesdists)
+                if 0.5<fdict[i][j][2]<0.6:
+                    anglesdists=(fdict[i][j][0],fdict[i][j][1])
+                    fifty[i].append(anglesdists)
+                if 0.4<fdict[i][j][2]<0.5:
+                    anglesdists=(fdict[i][j][0],fdict[i][j][1])
+                    forty[i].append(anglesdists)
+                if 0.3<fdict[i][j][2]<0.4:
+                    anglesdists=(fdict[i][j][0],fdict[i][j][1])
+                    thirty[i].append(anglesdists)
+                if 0.2<fdict[i][j][2]<0.3:
+                    anglesdists=(fdict[i][j][0],fdict[i][j][1])
+                    twenty[i].append(anglesdists)
+                if 0.1<fdict[i][j][2]<0.2:
+                    anglesdists=(fdict[i][j][0],fdict[i][j][1])
+                    ten[i].append(anglesdists)
+                if 0<fdict[i][j][2]<0.1:
+                    anglesdists=(fdict[i][j][0],fdict[i][j][1])
+                    zeros[i].append(anglesdists)
+                if -0.1<fdict[i][j][2]<0:
+                    anglesdists=(fdict[i][j][0],fdict[i][j][1])
+                    nzeros[i].append(anglesdists)
+                if -0.2<fdict[i][j][2]<-0.1:
+                    anglesdists=(fdict[i][j][0],fdict[i][j][1])
+                    nten[i].append(anglesdists)
+                if -0.3<fdict[i][j][2]<-0.2:
+                    anglesdists=(fdict[i][j][0],fdict[i][j][1])
+                    ntwenty[i].append(anglesdists)
+                if -0.4<fdict[i][j][2]<-0.3:
+                    anglesdists=(fdict[i][j][0],fdict[i][j][1])
+                    nthirty[i].append(anglesdists)
 
     
+
+    fulldict={'ninty':ninty,'eighty':eighty,'seventy':seventy,'sixty':sixty,'fifty':fifty,'forty':forty,'thirty':thirty,'twenty':twenty,'ten':ten,'zeros':zeros,'nzeros':nzeros,'nten':nten,'ntwenty':ntwenty,'nthirty':nthirty}
+    
+    
+    addition = np.zeros(shape=(360, 24))
+    for i in fulldict.keys():
+       for j in fulldict[i]:
+           
+           for k in range(0,len(fulldict[i][j])):
+                print(fulldict[i][j][k],i,j)
+                
+
 '''
     for i in fortyD.keys():
        for j in range(0,len(fortyD[i])):
