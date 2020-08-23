@@ -61,7 +61,7 @@ def pull_clusters(filename, cutoff_val, chain_id):
             storecalpha[coordObj_atoms[i]]=list()
             storevec[coordObj_atoms[i]]=list()
             cluster_types[i] = list()
-        
+        print(i,j)
         
         store[i].append(coordObj_atoms[j].get_parent().get_name())                          #dict of cluster w/ resnames
         

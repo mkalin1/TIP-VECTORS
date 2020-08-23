@@ -9,6 +9,8 @@ import seaborn as sns
 import os.path 
 from os import path
 import math
+import pandas as pd
+
 
 def pull_clusters(filename, cutoff_val, chain_id):
     hydrophobicity={
@@ -266,31 +268,8 @@ def pull_clusters(filename, cutoff_val, chain_id):
     fulldict={'ninty':ninty,'eighty':eighty,'seventy':seventy,'sixty':sixty,'fifty':fifty,'forty':forty,'thirty':thirty,'twenty':twenty,'ten':ten,'zeros':zeros,'nzeros':nzeros,'nten':nten,'ntwenty':ntwenty,'nthirty':nthirty}
     
     
-    addition = np.zeros(shape=(360, 24))
-
-    for i in fulldict.keys():
-        for j in fulldict[i]:
-            x=[j[0]]
-            y=[j[1]]
-            z=j[2]
-            print('write',i,j)
-            mtx=np.histogram2d(x,y,bins=(360, 24),range=[[0,360],[0,12]])
-            
-
-            if path.exists(i + ' ' + z):
-                full = np.loadtxt(i + ' ' + z)
-                addition=np.add(mtx[0],full)
-            else:
-                addition=mtx[0]
-            
-        
-            np.savetxt(i + ' ' + z,addition,fmt='%i')
+  
     
-        #for i in angles.keys():
-            #print(i.get_parent().get_id())
-        #print(angles)
-    
-    print(k)
     #############################################################################################################
 
     for key, val in store.items():
@@ -299,23 +278,32 @@ def pull_clusters(filename, cutoff_val, chain_id):
         except:
             retDict[str(cluster_types[key].count("HB"))+"/"+str(cluster_types[key].count("HP"))] = list()
             retDict[str(cluster_types[key].count("HB"))+"/"+str(cluster_types[key].count("HP"))].append(val)
-            
-    return retDict
+    
+    
+ 
 
 
+
+    return retDict,fulldict
+
+def graphing(fulldict):
+    for i in fulldict.keys():
+
+        full = np.loadtxt()
+        df=pd.DataFrame(data=full,index=np.array(range(0,360)),columns=np.array(range(0,24)))
+        dft=df.transpose()         
+        sns.heatmap(dft)                      
+        plt.savefig(key+'.png',format='PNG') 
+        plt.close()
 
 with open('namestring.txt', 'r') as f:              #txt of all pdb file names to download
     namestring=f.read().split(",")
     
 
-
-leng=len(namestring)
-names=[]
-for i in range(0,leng):
-    names.append(namestring[i])
-    
-for k in names:   
-    out = pull_clusters(k+'.pdb', 12.0, "A") #Here are all your clusters with ids -number of hydrophobic residue/number of hydrophilic residues
+out = pull_clusters('4KXV.pdb', 12.0, "A") #Here are all your clusters with ids -number of hydrophobic residue/number of hydrophilic residues
 
 
 # This is for one PDB id. You can collect this for many pdb ids and merge the clusters.
+
+
+

@@ -9,8 +9,10 @@ import seaborn as sns
 import os.path 
 from os import path
 import math
+import timeit
 
-def pull_clusters(filename, cutoff_val, chain_id):
+def pull_clusters(filename, cutoff_val, chain_id,fulldict):
+    
     hydrophobicity={
     'ALA':0.20,
     'CYS':4.10,
@@ -35,7 +37,7 @@ def pull_clusters(filename, cutoff_val, chain_id):
     }
 
 
-
+    
     HYD = ["GLY", "ALA", "VAL", "LEU", "ISO", "PRO", "PHE", "MET", "TRP"] # Edit this as per your requirement
     mol=molecule.load_structure(filename)
     coordObj_atoms=[i for i in mol[0].get_calpha()]
@@ -124,56 +126,33 @@ def pull_clusters(filename, cutoff_val, chain_id):
                 
                 angles[i]=list()
     
-    '''
-    for i in storevec.keys():
-        print(i.get_parent().get_name(),hyddict[i])
-    '''
+   
     fdict=dict()
     
+  
+#################   #################   #################   #################   #################   #################   
+
     for i in angles.keys():
         for j in range(0,len(storevec[i])):  
-            if storevec[i][j][1].get_name()!='GLY' and storevec[i][j][1].get_name()!='ALA':     #################               
+            if storevec[i][j][1].get_name()!='GLY' and storevec[i][j][1].get_name()!='ALA':                 
                 
-                #print(k.get_parent().get_id())
-                    #if storevec[i][j][1].get_name()!='GLY' and storevec[i][j][1].get_name()!='ALA' and i.get_name!='GLY' and i.get_name!='ALA':                           #use mol object instead of name???
                 distmin=np.linalg.norm(i.get_parent().get_tip().get_location()-storetip[i][j][0])
-                
-                
 
                 if i.get_parent()==storevec[i][j][1]:
                     angle=0.0
                 else:
                     angle=vg.signed_angle(i.get_location()-i.get_parent().get_tip().get_location(),storevec[i][j][0], look=vg.basis.z)
-                
-                
-                #print(i.get_parent().get_tip().get_location(),storevec[i][j][0])
-
+            
                 if angle < 0:
                     angle = angle+360
 
                 hydclust=hyddict[i]
                 
                 angles[i].append([(angle),(distmin),(hydclust),(i.get_parent().get_name(),storevec[i][j][1].get_name())])
-                #for n in range(0,len(angles.items()))
-                #get_parent().get_id()==get_parent().get_id()-n
                 
-                '''
-                key=sorted(angles[i][j][3])
-                print(angles[i][j][3])
-                try:
-                    fdict[ key[0]+'-'+key[1] ].append(angles[i])
-                except:
-                    fdict[ key[0]+'-'+key[1] ]=[]
-                    fdict[ key[0]+'-'+key[1] ].append(angles[i])
-                    '''
-                        #print(distmin,storetip[i][j][1],storetip[i][k][1])
-                        #print(vg.signed_angle(storevec[i][j][0],storevec[i][k][0], look=vg.basis.z))
-                        #print(storevec[i][j][1].get_name(),storevec[i][k][1].get_name())
-                        #print(storevec[i][j+1<len(storevec[i])][0],storevec[i][j+1<len(storevec[i])][1])
-                        #print(storevec[i][j][0],storevec[i][j][1])
-                        #print(storevec[i][j][0])
-                        #print("\n")
-                        #print((vg.signed_angle(storevec[i][j][0],storevec[i][k][0], look=vg.basis.z)))
+                
+#################   #################   #################   #################   #################   #################                   
+                        
     this=[]
     
     
@@ -192,25 +171,12 @@ def pull_clusters(filename, cutoff_val, chain_id):
 
 
     
-    ninty=[]
-    eighty=[]
-    seventy=[]
-    sixty=[]
-    fifty=[]
-    forty=[]
-    thirty=[]
-    twenty=[]
-    ten=[]
-    zeros=[]
-    nzeros=[]
-    nten=[]
-    ntwenty=[]
-    nthirty=[]
+    
+   
+    
     anglesdists=[]
     
 
-
-    
     for i in fdict.keys():
         for j in range(0,len(fdict[i])):
             if fdict[i][j][0]==0.0:
@@ -219,73 +185,56 @@ def pull_clusters(filename, cutoff_val, chain_id):
                 if 0.9<fdict[i][j][2]<1:
                     anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
                     ninty.append(anglesdists)
+                    fulldict['ninty'].append(anglesdists)
                 if 0.8<fdict[i][j][2]<0.9:
                     anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
-                    eighty.append(anglesdists)
+                    fulldict['eighty'].append(anglesdists)
                 if 0.7<fdict[i][j][2]<0.8:  
                     anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
-                    seventy.append(anglesdists)
+                    fulldict['seventy'].append(anglesdists)
                 if 0.6<fdict[i][j][2]<0.7:
                     anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
-                    sixty.append(anglesdists)
+                    fulldict['sixty'].append(anglesdists)
                 if 0.5<fdict[i][j][2]<0.6:
                     anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
-                    fifty.append(anglesdists)
+                    fulldict['fifty'].append(anglesdists)
                 if 0.4<fdict[i][j][2]<0.5:
                     anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
-                    forty.append(anglesdists)
+                    fulldict['forty'].append(anglesdists)
                     
                 if 0.3<fdict[i][j][2]<0.4:
                     anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
-                    thirty.append(anglesdists)
+                    fulldict['thirty'].append(anglesdists)
                 if 0.2<fdict[i][j][2]<0.3:
                     anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
-                    twenty.append(anglesdists)
+                    fulldict['twenty'].append(anglesdists)
                 if 0.1<fdict[i][j][2]<0.2:
                     anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
-                    ten.append(anglesdists)
+                    fulldict['ten'].append(anglesdists)
                 if 0<fdict[i][j][2]<0.1:
                     anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
-                    zeros.append(anglesdists)
+                    fulldict['zeros'].append(anglesdists)
                 if -0.1<fdict[i][j][2]<0:
                     
                     anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
-                    nzeros.append(anglesdists)
+                    fulldict['nzeros'].append(anglesdists)
                 if -0.2<fdict[i][j][2]<-0.1:
                     anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
-                    nten.append(anglesdists)
+                    fulldict['nten'].append(anglesdists)
                 if -0.3<fdict[i][j][2]<-0.2:
                     anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
-                    ntwenty.append(anglesdists)
+                    fulldict['ntwenty'].append(anglesdists)
                 if -0.4<fdict[i][j][2]<-0.3:
                     anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
-                    nthirty.append(anglesdists)
+                    fulldict['nthirty'].append(anglesdists)
+
+    
     
     
 
-    fulldict={'ninty':ninty,'eighty':eighty,'seventy':seventy,'sixty':sixty,'fifty':fifty,'forty':forty,'thirty':thirty,'twenty':twenty,'ten':ten,'zeros':zeros,'nzeros':nzeros,'nten':nten,'ntwenty':ntwenty,'nthirty':nthirty}
     
     
-    addition = np.zeros(shape=(360, 24))
-
-    for i in fulldict.keys():
-        for j in fulldict[i]:
-            x=[j[0]]
-            y=[j[1]]
-            z=j[2]
-            print('write',i,j)
-            mtx=np.histogram2d(x,y,bins=(360, 24),range=[[0,360],[0,12]])
-            
-
-            if path.exists(i + ' ' + z):
-                full = np.loadtxt(i + ' ' + z)
-                addition=np.add(mtx[0],full)
-            else:
-                addition=mtx[0]
-            
-        
-            np.savetxt(i + ' ' + z,addition,fmt='%i')
-    
+  
         #for i in angles.keys():
             #print(i.get_parent().get_id())
         #print(angles)
@@ -300,8 +249,58 @@ def pull_clusters(filename, cutoff_val, chain_id):
             retDict[str(cluster_types[key].count("HB"))+"/"+str(cluster_types[key].count("HP"))] = list()
             retDict[str(cluster_types[key].count("HB"))+"/"+str(cluster_types[key].count("HP"))].append(val)
             
-    return retDict
+    return retDict,fulldict
 
+def writefile(fulldict):
+    
+    addition = np.zeros(shape=(360, 24))
+    
+    keydict=dict()
+    keydict2=dict()
+    
+
+    for i in fulldict.keys():
+        for j in fulldict[i]:
+            z=j[2]
+            try:
+                keydict[i+ ' '+z+'.txt']
+            except:
+
+                keydict[i+ ' '+z+'.txt']=[list(),list()]
+            
+            x=j[0]
+            y=j[1]
+            
+            keydict[i+ ' '+z+'.txt'][0].append(x)
+            keydict[i+ ' '+z+'.txt'][1].append(y)
+    
+    for key,val in keydict.items():
+        check=dict()
+        for n,i in enumerate(val[0]):
+            try:
+                check[i]
+                continue
+            except:
+                check[i]="NA"
+                try:
+                    keydict2[key][0].append(i)
+                    keydict2[key][1].append(val[1][n])
+                except:
+                    keydict2[key]=[list(),list()]
+                    keydict2[key][0].append(i)
+                    keydict2[key][1].append(val[1][n])
+
+            
+   
+    for key,val in keydict.items():                   #### keydict2 for no repititions within a hydcluster
+        
+        mtx=np.histogram2d(val[0],val[1],bins=(72, 24),range=[[0,360],[0,12]])
+       
+            
+        
+        np.savetxt(key,mtx[0],fmt='%i')
+    
+    return True
 
 
 with open('namestring.txt', 'r') as f:              #txt of all pdb file names to download
@@ -313,9 +312,19 @@ leng=len(namestring)
 names=[]
 for i in range(0,leng):
     names.append(namestring[i])
-    
-for k in names:   
-    out = pull_clusters(k+'.pdb', 12.0, "A") #Here are all your clusters with ids -number of hydrophobic residue/number of hydrophilic residues
+
+fulldict={'ninty':ninty,'eighty':eighty,'seventy':seventy,'sixty':sixty,'fifty':fifty,'forty':forty,'thirty':thirty,'twenty':twenty,'ten':ten,'zeros':zeros,'nzeros':nzeros,'nten':nten,'ntwenty':ntwenty,'nthirty':nthirty}
+#fulldict={'0.9':list(),'0.8':list(),'0.7':list(),'0.6':list(),'0.5':list(),'0.4':list(),'0.3':list(),'0.2':list(),'0.1':list(),'-0.0':list(),'-0.1':list(),'-0.2':list(),'-0.3':list(),'0.4':list()}
+
+for i,k in enumerate(names):
+    print(i)
+    #out,fulldict = pull_clusters(k+'.pdb', 12.0, "A", fulldict)
+    try:   
+        out,fulldict = pull_clusters(k+'.pdb', 12.0, "A", fulldict)  #Here are all your clusters with ids -number of hydrophobic residue/number of hydrophilic residues
+    except:
+        continue
+
+writefile(fulldict)
 
 
 # This is for one PDB id. You can collect this for many pdb ids and merge the clusters.

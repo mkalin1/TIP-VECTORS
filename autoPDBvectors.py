@@ -13,7 +13,7 @@ import pandas as pd
 from scipy import stats
 
 
-with open('namestring.txt', 'r') as f:              #txt of all pdb file names to download
+with open('newnamestring.txt', 'r') as f:              #txt of all pdb file names to download
     namestring=f.read().split(",")
     
 
@@ -22,20 +22,24 @@ leng=len(namestring)
 names=[]
 for i in range(0,leng):
     names.append(namestring[i])
-'''
+
 for i in range(0,leng):
     if path.exists(namestring[i]+'.pdb'):
         continue 
     else:
-        print(namestring[i])
-        molecule.download_structure(namestring[i],(namestring[i]+'.pdb'))
-'''
+        try:
+            print(namestring[i])
+            molecule.download_structure(namestring[i],(namestring[i]+'.pdb'))
+        except:
+            pass
+    
+
 
 
 #molecule.download_structure('4KXV','4KXV.pdb')
 #mol=molecule.load_structure('4KXV.pdb')
 
-
+'''
 for k in names:                                              
     mol = molecule.load_structure(k+'.pdb')
     restricted_res = ['ALA', 'GLY']
@@ -99,20 +103,13 @@ for k in names:
             else:
                 addition = mtx[0]
 
-            '''
-            for m in range(0,len(yint)):
-                if any(n>100 for n in yint[m]):
-                    counter=counter+1
-            '''
             np.savetxt(i, addition, fmt='%i')
             # np.savetxt(i,mtx[0],fmt='%i')
 
             # exit()
     except:
-        pass        
-'''
-with open('OUTLIERS.txt', 'w') as f:
-  f.write('%i' % counter)
+        pass   
+
 
 '''
 
