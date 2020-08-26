@@ -76,8 +76,7 @@ def pull_clusters(filename, cutoff_val, chain_id):
             cluster_types[i].append("HB")
         else:
             cluster_types[i].append("HP")
-    for i in storetip.keys():
-        print(i.get_parent().get_tip().get_location())
+   
     
     ##########################################################################
     
@@ -93,10 +92,13 @@ def pull_clusters(filename, cutoff_val, chain_id):
     clusterhyd=dict()
     clusterhyd = {k: [hydrophobicity.get(v, v) for v in v] for k, v in store.items()}              #hydrophobicity of cluster (list)
     for key,val in clusterhyd.items():                                                              #sum hyd of cluster list
+        print(sum(clusterhyd[key]))
         clusterhyd[key]=sum(clusterhyd[key])
     ##########################################################################
+
     hydperc=[]  
     for key,val in clusterhyd.items():
+        
         hydperc.append(clusterhyd[key]/(5.70*rescount[key]))                                 # % hydrophobicity
     
 
@@ -108,7 +110,7 @@ def pull_clusters(filename, cutoff_val, chain_id):
     
        ###################################################################################################             creating dict of [key]:[[angle],[distmin],[(respair)]]
     angles=dict()
-    print(storevec)
+    
     for i in storevec.keys():
         try:
             angles[i]
