@@ -69,11 +69,11 @@ def pull_clusters(filename, cutoff_val, chain_id,fulldict):
         
         
         store[i].append(coordObj_atoms[j].get_parent().get_name())                          #dict of cluster w/ resnames
-        if i>=j:
-            storevec[coordObj_atoms[i]].append([(coordObj_atoms[j].get_location()-coordObj_atoms[j].get_parent().get_tip().get_location()),coordObj_atoms[j].get_parent()])      #stores calpha-tip vctors with mol OBJECT
-            #storevec[i].append([(coordObj_atoms[j].get_location()-coordObj_atoms[j].get_parent().get_tip().get_location()),coordObj_atoms[j].get_parent().get_name()]) #stores calpha-tip vctors with resname
-            #storetip[i].append([coordObj_atoms[j].get_parent().get_tip().get_location(),coordObj_atoms[j].get_parent().get_name()])            #dict of cluster w/tip coords
-            storetip[coordObj_atoms[i]].append([coordObj_atoms[j].get_parent().get_tip().get_location(),coordObj_atoms[j]])            #dict of cluster w/tip coords and names
+   
+        storevec[coordObj_atoms[i]].append([(coordObj_atoms[j].get_location()-coordObj_atoms[j].get_parent().get_tip().get_location()),coordObj_atoms[j].get_parent()])      #stores calpha-tip vctors with mol OBJECT
+        #storevec[i].append([(coordObj_atoms[j].get_location()-coordObj_atoms[j].get_parent().get_tip().get_location()),coordObj_atoms[j].get_parent().get_name()]) #stores calpha-tip vctors with resname
+        #storetip[i].append([coordObj_atoms[j].get_parent().get_tip().get_location(),coordObj_atoms[j].get_parent().get_name()])            #dict of cluster w/tip coords
+        storetip[coordObj_atoms[i]].append([coordObj_atoms[j].get_parent().get_tip().get_location(),coordObj_atoms[j]])            #dict of cluster w/tip coords and names
         
         #storecalpha[i].append([coordObj_atoms[j].get_location(),coordObj_atoms[j].get_parent().get_name()])           #dict of cluster w/calpha coords
         #storetip[i].append([coordObj_atoms[j].get_parent().get_tip().get_location()])
@@ -153,22 +153,19 @@ def pull_clusters(filename, cutoff_val, chain_id,fulldict):
                 
 #################   #################   #################   #################   #################   #################                   
                         
+    this=[]
     
     
-    def fd(angles,fdict):  
-        this=[]
-        for i in angles.keys():
-            for j in range(0,len(angles[i])):
-                key=sorted(angles[i][j][3])
-                this=angles[i][j]    
-                #print(this)
-                try:
-                    fdict[ key[0]+'-'+key[1] ].append(this)
-                except:
-                    fdict[ key[0]+'-'+key[1] ]=[]
-                    fdict[ key[0]+'-'+key[1] ].append(this)
-
-        return fdict
+    for i in angles.keys():
+        for j in range(0,len(angles[i])):
+            key=sorted(angles[i][j][3])
+            this=angles[i][j]    
+            #print(this)
+            try:
+                fdict[ key[0]+'-'+key[1] ].append(this)
+            except:
+                fdict[ key[0]+'-'+key[1] ]=[]
+                fdict[ key[0]+'-'+key[1] ].append(this)
     
  
 
@@ -259,7 +256,7 @@ def writefile(fulldict):
     addition = np.zeros(shape=(360, 24))
     
     keydict=dict()
-    #keydict2=dict()
+    keydict2=dict()
     
 
     for i in fulldict.keys():
@@ -276,8 +273,8 @@ def writefile(fulldict):
             
             keydict[i+ ' '+z+'.txt'][0].append(x)
             keydict[i+ ' '+z+'.txt'][1].append(y)
-    '''
-    for key,val in keydict.items():
+    
+    for key,val in keydict2.items():
         check=dict()
         for n,i in enumerate(val[0]):
             try:
@@ -292,10 +289,21 @@ def writefile(fulldict):
                     keydict2[key]=[list(),list()]
                     keydict2[key][0].append(i)
                     keydict2[key][1].append(val[1][n])
-    '''
+    
             
- 
-    return keydict
+   
+    for key,val in keydict2.items():                   #### keydict2 for no repititions within a hydcluster
+        try:
+            mtx=np.histogram2d(val[0],val[1],bins=(180, 24),range=[[0,360],[0,12]])
+    
+            
+        
+            np.savetxt(key,mtx[0],fmt='%i')
+        except:
+            print(val[0],val[1])
+            continue
+    
+    return True
 
 
 with open('newnewnamestring.txt', 'r') as f:              #txt of all pdb file names to download
@@ -316,7 +324,7 @@ for i,k in enumerate(names[:5000]):
     print(i)
     #out,fulldict = pull_clusters(k+'.pdb', 12.0, "A", fulldict)
     try:   
-        out,fulldict = pull_clusters(k+'.pdb', 10.0, "A", fulldict)  #Here are all your clusters with ids -number of hydrophobic residue/number of hydrophilic residues
+        out,fulldict = pull_clusters(k+'.pdb', 12.0, "A", fulldict)  #Here are all your clusters with ids -number of hydrophobic residue/number of hydrophilic residues
     except:
         continue
 

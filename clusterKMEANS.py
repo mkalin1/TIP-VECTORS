@@ -10,8 +10,9 @@ import os.path
 from os import path
 import math
 import timeit
+import kmeans1d
 
-def pull_clusters(filename, cutoff_val, chain_id,fulldict):
+def pull_clusters(filename, cutoff_val, chain_id,nhyd):
     
     hydrophobicity={
     'ALA':0.20,
@@ -153,22 +154,19 @@ def pull_clusters(filename, cutoff_val, chain_id,fulldict):
                 
 #################   #################   #################   #################   #################   #################                   
                         
+    this=[]
     
     
-    def fd(angles,fdict):  
-        this=[]
-        for i in angles.keys():
-            for j in range(0,len(angles[i])):
-                key=sorted(angles[i][j][3])
-                this=angles[i][j]    
-                #print(this)
-                try:
-                    fdict[ key[0]+'-'+key[1] ].append(this)
-                except:
-                    fdict[ key[0]+'-'+key[1] ]=[]
-                    fdict[ key[0]+'-'+key[1] ].append(this)
-
-        return fdict
+    for i in angles.keys():
+        for j in range(0,len(angles[i])):
+            key=sorted(angles[i][j][3])
+            this=angles[i][j]    
+            #print(this)
+            try:
+                fdict[ key[0]+'-'+key[1] ].append(this)
+            except:
+                fdict[ key[0]+'-'+key[1] ]=[]
+                fdict[ key[0]+'-'+key[1] ].append(this)
     
  
 
@@ -179,62 +177,19 @@ def pull_clusters(filename, cutoff_val, chain_id,fulldict):
     
     anglesdists=[]
     
-
     for i in fdict.keys():
         for j in range(0,len(fdict[i])):
-            if fdict[i][j][0]==0.0:
-                continue
-            else:
-                if 0.9<fdict[i][j][2]<1:
-                    anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
-                    
-                    fulldict['ninty'].append(anglesdists)
-                if 0.8<fdict[i][j][2]<0.9:
-                    anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
-                    fulldict['eighty'].append(anglesdists)
-                if 0.7<fdict[i][j][2]<0.8:  
-                    anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
-                    fulldict['seventy'].append(anglesdists)
-                if 0.6<fdict[i][j][2]<0.7:
-                    anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
-                    fulldict['sixty'].append(anglesdists)
-                if 0.5<fdict[i][j][2]<0.6:
-                    anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
-                    fulldict['fifty'].append(anglesdists)
-                if 0.4<fdict[i][j][2]<0.5:
-                    anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
-                    fulldict['forty'].append(anglesdists)
-                    
-                if 0.3<fdict[i][j][2]<0.4:
-                    anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
-                    fulldict['thirty'].append(anglesdists)
-                if 0.2<fdict[i][j][2]<0.3:
-                    anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
-                    fulldict['twenty'].append(anglesdists)
-                if 0.1<fdict[i][j][2]<0.2:
-                    anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
-                    fulldict['ten'].append(anglesdists)
-                if 0<fdict[i][j][2]<0.1:
-                    anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
-                    fulldict['zeros'].append(anglesdists)
-                if -0.1<fdict[i][j][2]<0:
-                    
-                    anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
-                    fulldict['nzeros'].append(anglesdists)
-                if -0.2<fdict[i][j][2]<-0.1:
-                    anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
-                    fulldict['nten'].append(anglesdists)
-                if -0.3<fdict[i][j][2]<-0.2:
-                    anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
-                    fulldict['ntwenty'].append(anglesdists)
-                if -0.4<fdict[i][j][2]<-0.3:
-                    anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
-                    fulldict['nthirty'].append(anglesdists)
-
+            try:
+                nhyd[i].append(fdict[i][j][2])
+            except:
+                nhyd[i]=list()
+                nhyd[i].append(fdict[i][j][2])
     
     
     
-
+    
+    
+   
     
     
   
@@ -252,50 +207,9 @@ def pull_clusters(filename, cutoff_val, chain_id,fulldict):
             retDict[str(cluster_types[key].count("HB"))+"/"+str(cluster_types[key].count("HP"))] = list()
             retDict[str(cluster_types[key].count("HB"))+"/"+str(cluster_types[key].count("HP"))].append(val)
             
-    return retDict,fulldict
+    return retDict,nhyd
 
-def writefile(fulldict):
-    
-    addition = np.zeros(shape=(360, 24))
-    
-    keydict=dict()
-    #keydict2=dict()
-    
 
-    for i in fulldict.keys():
-        for j in fulldict[i]:
-            z=j[2]
-            try:
-                keydict[i+ ' '+z+'.txt']
-            except:
-
-                keydict[i+ ' '+z+'.txt']=[list(),list()]
-            
-            x=j[0]
-            y=j[1]
-            
-            keydict[i+ ' '+z+'.txt'][0].append(x)
-            keydict[i+ ' '+z+'.txt'][1].append(y)
-    '''
-    for key,val in keydict.items():
-        check=dict()
-        for n,i in enumerate(val[0]):
-            try:
-                check[i]
-                continue
-            except:
-                check[i]="NA"
-                try:
-                    keydict2[key][0].append(i)
-                    keydict2[key][1].append(val[1][n])
-                except:
-                    keydict2[key]=[list(),list()]
-                    keydict2[key][0].append(i)
-                    keydict2[key][1].append(val[1][n])
-    '''
-            
- 
-    return keydict
 
 
 with open('newnewnamestring.txt', 'r') as f:              #txt of all pdb file names to download
@@ -308,19 +222,21 @@ names=[]
 for i in range(0,leng):
     names.append(namestring[i])
 
-fulldict={'ninty':list(),'eighty':list(),'seventy':list(),'sixty':list(),'fifty':list(),'forty':list(),'thirty':list(),'twenty':list(),'ten':list(),'zeros':list(),'nzeros':list(),'nten':list(),'ntwenty':list(),'nthirty':list()}
 #fulldict={'0.9':list(),'0.8':list(),'0.7':list(),'0.6':list(),'0.5':list(),'0.4':list(),'0.3':list(),'0.2':list(),'0.1':list(),'-0.0':list(),'-0.1':list(),'-0.2':list(),'-0.3':list(),'0.4':list()}
-
-for i,k in enumerate(names[:5000]):
-
-    print(i)
-    #out,fulldict = pull_clusters(k+'.pdb', 12.0, "A", fulldict)
-    try:   
-        out,fulldict = pull_clusters(k+'.pdb', 10.0, "A", fulldict)  #Here are all your clusters with ids -number of hydrophobic residue/number of hydrophilic residues
+nhyd=dict()
+for numk,k in enumerate(names[:10]):
+    try:
+        out,nhyd = pull_clusters(k+'.pdb', 12.0, "A",nhyd)  #Here are all your clusters with ids -number of hydrophobic residue/number of hydrophilic residues
     except:
         continue
+def hyd(nhyd):
+    for i in nhyd.keys():
+     
+        k=10
+        clusters, centroids = kmeans1d.cluster(nhyd[i], k)
+        print(i,centroids,clusters,nhyd[i])
+        
+        #print(i,centroids)
 
-writefile(fulldict)
-
-
+hyd(nhyd)
 # This is for one PDB id. You can collect this for many pdb ids and merge the clusters.

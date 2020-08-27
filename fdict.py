@@ -10,8 +10,9 @@ import os.path
 from os import path
 import math
 import timeit
+import kmeans1d
 
-def pull_clusters(filename, cutoff_val, chain_id,fulldict):
+def pull_clusters(filename, cutoff_val, chain_id,fdict2,nhyd):
     
     hydrophobicity={
     'ALA':0.20,
@@ -153,96 +154,45 @@ def pull_clusters(filename, cutoff_val, chain_id,fulldict):
                 
 #################   #################   #################   #################   #################   #################                   
                         
-    
-    
-    def fd(angles,fdict):  
-        this=[]
-        for i in angles.keys():
-            for j in range(0,len(angles[i])):
-                key=sorted(angles[i][j][3])
-                this=angles[i][j]    
-                #print(this)
-                try:
-                    fdict[ key[0]+'-'+key[1] ].append(this)
-                except:
-                    fdict[ key[0]+'-'+key[1] ]=[]
-                    fdict[ key[0]+'-'+key[1] ].append(this)
-
-        return fdict
-    
- 
-
-
-    
+    this=[]
+    fdict=dict()
+        
+    for i in angles.keys():
+        for j in range(0,len(angles[i])):
+            key=sorted(angles[i][j][3])
+            this=angles[i][j]    
+            #print(this)
+            try:
+                fdict[ key[0]+'-'+key[1] ].append(this)
+            except:
+                fdict[ key[0]+'-'+key[1] ]=[]
+                fdict[ key[0]+'-'+key[1] ].append(this)
     
    
     
     anglesdists=[]
-    
-
+    print(k)
     for i in fdict.keys():
         for j in range(0,len(fdict[i])):
             if fdict[i][j][0]==0.0:
                 continue
             else:
-                if 0.9<fdict[i][j][2]<1:
-                    anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
-                    
-                    fulldict['ninty'].append(anglesdists)
-                if 0.8<fdict[i][j][2]<0.9:
-                    anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
-                    fulldict['eighty'].append(anglesdists)
-                if 0.7<fdict[i][j][2]<0.8:  
-                    anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
-                    fulldict['seventy'].append(anglesdists)
-                if 0.6<fdict[i][j][2]<0.7:
-                    anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
-                    fulldict['sixty'].append(anglesdists)
-                if 0.5<fdict[i][j][2]<0.6:
-                    anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
-                    fulldict['fifty'].append(anglesdists)
-                if 0.4<fdict[i][j][2]<0.5:
-                    anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
-                    fulldict['forty'].append(anglesdists)
-                    
-                if 0.3<fdict[i][j][2]<0.4:
-                    anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
-                    fulldict['thirty'].append(anglesdists)
-                if 0.2<fdict[i][j][2]<0.3:
-                    anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
-                    fulldict['twenty'].append(anglesdists)
-                if 0.1<fdict[i][j][2]<0.2:
-                    anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
-                    fulldict['ten'].append(anglesdists)
-                if 0<fdict[i][j][2]<0.1:
-                    anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
-                    fulldict['zeros'].append(anglesdists)
-                if -0.1<fdict[i][j][2]<0:
-                    
-                    anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
-                    fulldict['nzeros'].append(anglesdists)
-                if -0.2<fdict[i][j][2]<-0.1:
-                    anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
-                    fulldict['nten'].append(anglesdists)
-                if -0.3<fdict[i][j][2]<-0.2:
-                    anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
-                    fulldict['ntwenty'].append(anglesdists)
-                if -0.4<fdict[i][j][2]<-0.3:
-                    anglesdists=(fdict[i][j][0],fdict[i][j][1],i)
-                    fulldict['nthirty'].append(anglesdists)
+                try:
+                    nhyd[i].append(fdict[i][j][2])
+                except:
+                    nhyd[i]=list()
+                    nhyd[i].append(fdict[i][j][2])
 
     
-    
-    
+    for i in fdict.keys():
+        for j in range(0,len(fdict[i])):
+            if fdict[i][j][0]==0.0:
+                continue
+            else:
+                fdict2[i].append(fdict[i][j])
+               
 
-    
-    
-  
-        #for i in angles.keys():
-            #print(i.get_parent().get_id())
-        #print(angles)
-    
-    print(k)
+
     #############################################################################################################
 
     for key, val in store.items():
@@ -252,50 +202,13 @@ def pull_clusters(filename, cutoff_val, chain_id,fulldict):
             retDict[str(cluster_types[key].count("HB"))+"/"+str(cluster_types[key].count("HP"))] = list()
             retDict[str(cluster_types[key].count("HB"))+"/"+str(cluster_types[key].count("HP"))].append(val)
             
-    return retDict,fulldict
+    return retDict,fdict2,nhyd
 
-def writefile(fulldict):
-    
-    addition = np.zeros(shape=(360, 24))
-    
-    keydict=dict()
-    #keydict2=dict()
-    
 
-    for i in fulldict.keys():
-        for j in fulldict[i]:
-            z=j[2]
-            try:
-                keydict[i+ ' '+z+'.txt']
-            except:
 
-                keydict[i+ ' '+z+'.txt']=[list(),list()]
-            
-            x=j[0]
-            y=j[1]
-            
-            keydict[i+ ' '+z+'.txt'][0].append(x)
-            keydict[i+ ' '+z+'.txt'][1].append(y)
-    '''
-    for key,val in keydict.items():
-        check=dict()
-        for n,i in enumerate(val[0]):
-            try:
-                check[i]
-                continue
-            except:
-                check[i]="NA"
-                try:
-                    keydict2[key][0].append(i)
-                    keydict2[key][1].append(val[1][n])
-                except:
-                    keydict2[key]=[list(),list()]
-                    keydict2[key][0].append(i)
-                    keydict2[key][1].append(val[1][n])
-    '''
-            
- 
-    return keydict
+
+###########################################################################################################################################################
+
 
 
 with open('newnewnamestring.txt', 'r') as f:              #txt of all pdb file names to download
@@ -308,19 +221,72 @@ names=[]
 for i in range(0,leng):
     names.append(namestring[i])
 
-fulldict={'ninty':list(),'eighty':list(),'seventy':list(),'sixty':list(),'fifty':list(),'forty':list(),'thirty':list(),'twenty':list(),'ten':list(),'zeros':list(),'nzeros':list(),'nten':list(),'ntwenty':list(),'nthirty':list()}
-#fulldict={'0.9':list(),'0.8':list(),'0.7':list(),'0.6':list(),'0.5':list(),'0.4':list(),'0.3':list(),'0.2':list(),'0.1':list(),'-0.0':list(),'-0.1':list(),'-0.2':list(),'-0.3':list(),'0.4':list()}
 
-for i,k in enumerate(names[:5000]):
+fdict2={'ARG-ARG':list(), 'ARG-ASN':list(), 'ARG-ASP':list(), 'ARG-CYS':list(), 'ARG-GLN':list(), 'ARG-GLU':list(), 'ARG-HIS':list(), 'ARG-ILE':list(), 'ARG-LEU':list(), 'ARG-LYS':list(), 'ARG-MET':list(), 'ARG-PHE':list(), 'ARG-PRO':list(), 'ARG-SER':list(), 'ARG-THR':list(), 'ARG-TRP':list(), 'ARG-TYR':list(), 'ARG-VAL':list(), 'ASN-ASN':list(), 'ASN-ASP':list(), 'ASN-CYS':list(), 'ASN-GLN':list(), 'ASN-GLU':list(), 'ASN-HIS':list(), 'ASN-ILE':list(), 'ASN-LEU':list(), 'ASN-LYS':list(), 'ASN-MET':list(), 'ASN-PHE':list(), 'ASN-PRO':list(), 'ASN-SER':list(), 'ASN-THR':list(), 'ASN-TRP':list(), 'ASN-TYR':list(), 'ASN-VAL':list(), 'ASP-ASP':list(), 'ASP-CYS':list(), 'ASP-GLN':list(), 'ASP-GLU':list(), 'ASP-HIS':list(), 'ASP-ILE':list(), 'ASP-LEU':list(), 'ASP-LYS':list(), 'ASP-MET':list(), 'ASP-PHE':list(), 'ASP-PRO':list(), 'ASP-SER':list(), 'ASP-THR':list(), 'ASP-TRP':list(), 'ASP-TYR':list(), 'ASP-VAL':list(), 'CYS-CYS':list(), 'CYS-GLN':list(), 'CYS-GLU':list(), 'CYS-HIS':list(), 'CYS-ILE':list(), 'CYS-LEU':list(), 'CYS-LYS':list(), 'CYS-MET':list(), 'CYS-PHE':list(), 'CYS-PRO':list(), 'CYS-SER':list(), 'CYS-THR':list(), 'CYS-TRP':list(), 'CYS-TYR':list(), 'CYS-VAL':list(), 'GLN-GLN':list(), 'GLN-GLU':list(), 'GLN-HIS':list(), 'GLN-ILE':list(), 'GLN-LEU':list(), 'GLN-LYS':list(), 'GLN-MET':list(), 'GLN-PHE':list(), 'GLN-PRO':list(), 'GLN-SER':list(), 'GLN-THR':list(), 'GLN-TRP':list(), 'GLN-TYR':list(), 'GLN-VAL':list(), 'GLU-GLU':list(), 'GLU-HIS':list(), 'GLU-ILE':list(), 'GLU-LEU':list(), 'GLU-LYS':list(), 'GLU-MET':list(), 'GLU-PHE':list(), 'GLU-PRO':list(), 'GLU-SER':list(), 'GLU-THR':list(), 'GLU-TRP':list(), 'GLU-TYR':list(), 'GLU-VAL':list(), 'HIS-HIS':list(), 'HIS-ILE':list(), 'HIS-LEU':list(), 'HIS-LYS':list(), 'HIS-MET':list(), 'HIS-PHE':list(), 'HIS-PRO':list(), 'HIS-SER':list(), 'HIS-THR':list(), 'HIS-TRP':list(), 'HIS-TYR':list(), 'HIS-VAL':list(), 'ILE-ILE':list(), 'ILE-LEU':list(), 'ILE-LYS':list(), 'ILE-MET':list(), 'ILE-PHE':list(), 'ILE-PRO':list(), 'ILE-SER':list(), 'ILE-THR':list(), 'ILE-TRP':list(), 'ILE-TYR':list(), 'ILE-VAL':list(), 'LEU-LEU':list(), 'LEU-LYS':list(), 'LEU-MET':list(), 'LEU-PHE':list(), 'LEU-PRO':list(), 'LEU-SER':list(), 'LEU-THR':list(), 'LEU-TRP':list(), 'LEU-TYR':list(), 'LEU-VAL':list(), 'LYS-LYS':list(), 'LYS-MET':list(), 'LYS-PHE':list(), 'LYS-PRO':list(), 'LYS-SER':list(), 'LYS-THR':list(), 'LYS-TRP':list(), 'LYS-TYR':list(), 'LYS-VAL':list(), 'MET-MET':list(), 'MET-PHE':list(), 'MET-PRO':list(), 'MET-SER':list(), 'MET-THR':list(), 'MET-TRP':list(), 'MET-TYR':list(), 'MET-VAL':list(), 'PHE-PHE':list(), 'PHE-PRO':list(), 'PHE-SER':list(), 'PHE-THR':list(), 'PHE-TRP':list(), 'PHE-TYR':list(), 'PHE-VAL':list(), 'PRO-PRO':list(), 'PRO-SER':list(), 'PRO-THR':list(), 'PRO-TRP':list(), 'PRO-TYR':list(), 'PRO-VAL':list(), 'SER-SER':list(), 'SER-THR':list(), 'SER-TRP':list(), 'SER-TYR':list(), 'SER-VAL':list(), 'THR-THR':list(), 'THR-TRP':list(), 'THR-TYR':list(), 'THR-VAL':list(), 'TRP-TRP':list(), 'TRP-TYR':list(), 'TRP-VAL':list(), 'TYR-TYR':list(), 'TYR-VAL':list(), 'VAL-VAL':list()}
+
+nhyd=dict()
+
+for i,k in enumerate(names[:5]):
 
     print(i)
-    #out,fulldict = pull_clusters(k+'.pdb', 12.0, "A", fulldict)
+    #out,fdict2,nhyd = pull_clusters(k+'.pdb', 10.0, "A",fdict2,nhyd)
     try:   
-        out,fulldict = pull_clusters(k+'.pdb', 10.0, "A", fulldict)  #Here are all your clusters with ids -number of hydrophobic residue/number of hydrophilic residues
+        out,fdict2,nhyd = pull_clusters(k+'.pdb', 10.0, "A",fdict2,nhyd)  #Here are all your clusters with ids -number of hydrophobic residue/number of hydrophilic residues
     except:
         continue
 
-writefile(fulldict)
+def hyd(nhyd,fdict2):
+    k=10
+    newdict=dict()
+    newdict2=dict()
+    for i in fdict2.keys():
+        clusters, centroids = kmeans1d.cluster(nhyd[i], k)
+        for j,z in zip(clusters,fdict2[i]):
+            try:
+                newdict2[i].append({j:[z[0],z[1],z[2],j]})
+            except KeyError:
+                newdict2[i]=list()
+                newdict2[i].append({j:[z[0],z[1],z[2],j]})
+        for n in centroids:
+            try:
+                newdict[i].append(n=defaultdict(list))
+            except KeyError:
+                newdict[i]=list()
+                newdict[i].append(n=defaultdict(list))
+        #for j in range(0,newdict[i]):
+            #print(newdict[i][j])
+        for b,v in enumerate(newdict[i]):
+            #fuck=list(newdict2[i][b].values())
+            print(newdict[i][b])
+            #newdict[i][b]=list(newdict2[i][b].values())
+            
+            #print(b,v)
+            #print(newdict2[i][b])
+    #print(newdict)        
+    #print(newdict2)
+          
+                
+            #for numj,j in enumerate(newdict[i]):
+                #newdict[i][n].append([fdict2[i][numj][2],clusters[numj]])
+                #newdict[i].append([fdict2[i][j][2],clusters[j]])
+            #print(fdict2[i][j][2],clusters[j])
+        #for numh,h in enumerate(newdict[i]):
+            #print(numh,h)
+          
+    #print(newdict)
+           
+                
+                
+            
+            #print(fdict2[i][j],clusters)
+        
+        
+        #print(i,centroids)
+
+hyd(nhyd,fdict2)
 
 
 # This is for one PDB id. You can collect this for many pdb ids and merge the clusters.
+    
+    
+ 
