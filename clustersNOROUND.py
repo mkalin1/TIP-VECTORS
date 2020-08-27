@@ -280,8 +280,6 @@ def writefile(fulldict):
     for key,val in keydict.items():                   #### keydict2 for no repititions within a hydcluster
         try:
             mtx=np.histogram2d(val[0],val[1],bins=(180, 24),range=[[0,360],[0,12]])
-    
-            
         
             np.savetxt(key,mtx[0],fmt='%i')
         except:
@@ -322,12 +320,12 @@ for i in range(0,leng):
 fulldict={'ninty':list(),'eighty':list(),'seventy':list(),'sixty':list(),'fifty':list(),'forty':list(),'thirty':list(),'twenty':list(),'ten':list(),'zeros':list(),'nzeros':list(),'nten':list(),'ntwenty':list(),'nthirty':list()}
 #fulldict={'0.9':list(),'0.8':list(),'0.7':list(),'0.6':list(),'0.5':list(),'0.4':list(),'0.3':list(),'0.2':list(),'0.1':list(),'-0.0':list(),'-0.1':list(),'-0.2':list(),'-0.3':list(),'0.4':list()}
 
-for i,k in enumerate(names[:5000]):
+for i,k in enumerate(names[:2000]):
 
     print(i)
     #out,fulldict = pull_clusters(k+'.pdb', 12.0, "A", fulldict)
     try:   
-        out,fulldict = pull_clusters(k+'.pdb', 10.0, "A", fulldict)  #Here are all your clusters with ids -number of hydrophobic residue/number of hydrophilic residues
+        out,fulldict = pull_clusters(k+'.pdb', 12.0, "A", fulldict)  #Here are all your clusters with ids -number of hydrophobic residue/number of hydrophilic residues
     except:
         continue
 

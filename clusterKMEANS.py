@@ -11,8 +11,8 @@ from os import path
 import math
 import timeit
 import kmeans1d
-
-def pull_clusters(filename, cutoff_val, chain_id,nhyd):
+from collections import defaultdict
+def pull_clusters(filename, cutoff_val, chain_id,fdict2,nhyd):
     
     hydrophobicity={
     'ALA':0.20,
@@ -71,16 +71,10 @@ def pull_clusters(filename, cutoff_val, chain_id,nhyd):
         
         store[i].append(coordObj_atoms[j].get_parent().get_name())                          #dict of cluster w/ resnames
         if i>=j:
-            storevec[coordObj_atoms[i]].append([(coordObj_atoms[j].get_location()-coordObj_atoms[j].get_parent().get_tip().get_location()),coordObj_atoms[j].get_parent()])      #stores calpha-tip vctors with mol OBJECT
-            #storevec[i].append([(coordObj_atoms[j].get_location()-coordObj_atoms[j].get_parent().get_tip().get_location()),coordObj_atoms[j].get_parent().get_name()]) #stores calpha-tip vctors with resname
-            #storetip[i].append([coordObj_atoms[j].get_parent().get_tip().get_location(),coordObj_atoms[j].get_parent().get_name()])            #dict of cluster w/tip coords
-            storetip[coordObj_atoms[i]].append([coordObj_atoms[j].get_parent().get_tip().get_location(),coordObj_atoms[j]])            #dict of cluster w/tip coords and names
+            storevec[coordObj_atoms[i]].append([(coordObj_atoms[j].get_location()-coordObj_atoms[j].get_parent().get_tip().get_location()),coordObj_atoms[j].get_parent(),coordObj_atoms[j].get_parent().get_tip().get_location()])      #stores key=central res (i): values(calpha-tip vctors, molobj (j), tiplocation(j))
+            #storetip[coordObj_atoms[i]].append([coordObj_atoms[j].get_parent().get_tip().get_location(),coordObj_atoms[j]])            #dict of cluster w/tip coords and names
         
-        #storecalpha[i].append([coordObj_atoms[j].get_location(),coordObj_atoms[j].get_parent().get_name()])           #dict of cluster w/calpha coords
-        #storetip[i].append([coordObj_atoms[j].get_parent().get_tip().get_location()])
-        #storecalpha[i].append([coordObj_atoms[j].get_location()])
-        
-        #store[i].append(np.array([coordObj[j][0], coordObj[j][1], coordObj[j][2]]))
+     
 
         if coordObj_atoms[j].get_parent().get_name() in HYD:
             cluster_types[i].append("HB")
@@ -91,23 +85,20 @@ def pull_clusters(filename, cutoff_val, chain_id,nhyd):
     
     ##########################################################################
     
-    #for i in storetip.keys():                       
-        #print(mol[0].get_residues()[i].get_tip().get_location())          s
     
     rescount=[]
     for i in store.keys():                       
-        rescount.append(len(store[i]))                               # number of atoms in cluster
+        rescount.append(len(store[i]))                               # number of atoms in cluster (used for hydrophobicity% calculation)
         
-    
-    ###########################################################################
+
     clusterhyd=dict()
-    clusterhyd = {k: [hydrophobicity.get(v, v) for v in v] for k, v in store.items()}              #hydrophobicity of cluster (list)
-    for key,val in clusterhyd.items():                                                              #sum hyd of cluster list
+    clusterhyd = {k: [hydrophobicity.get(v, v) for v in v] for k, v in store.items()}                        #hydrophobicity of cluster (list)
+    for key,val in clusterhyd.items():                                                                        #sum hyd of cluster list
         clusterhyd[key]=sum(clusterhyd[key])
-    ##########################################################################
+    
     hydperc=[]  
     for key,val in clusterhyd.items():
-        hydperc.append(clusterhyd[key]/(5.70*rescount[key]))                                 # % hydrophobicity
+        hydperc.append(clusterhyd[key]/(5.70*rescount[key]))                                             # % hydrophobicity
     
 
    
@@ -115,11 +106,12 @@ def pull_clusters(filename, cutoff_val, chain_id,nhyd):
     
     
    
- #############################################################################################################             creating dict of [key]:[[angle],[distmin],[(respair)]]
+ #############################################################################################################            
     angles=dict()
-   
-    for i in storevec.keys():
-        if i.get_parent().get_name()!='GLY' and i.get_parent().get_name()!='ALA':                   ########## deal with this later
+    
+
+    for i in storevec.keys():                                                                           
+        if i.get_parent().get_name()!='GLY' and i.get_parent().get_name()!='ALA':                   # create new dict (angles) which removes clusters in which gly/ala is central atom
             try:
                 angles[i]
                 
@@ -128,36 +120,38 @@ def pull_clusters(filename, cutoff_val, chain_id,nhyd):
                 angles[i]=list()
     
    
-    fdict=dict()
     
-  
-#################   #################   #################   #################   #################   #################   
-
-    for i in angles.keys():
+    
+    for i in angles.keys():   
+        #print(i)                                                                                                  
         for j in range(0,len(storevec[i])):  
-            if storevec[i][j][1].get_name()!='GLY' and storevec[i][j][1].get_name()!='ALA':                 
+            
+            if storevec[i][j][1].get_name()!='GLY' and storevec[i][j][1].get_name()!='ALA':                                     # skips over gly/ala within a cluster
                 
-                distmin=np.linalg.norm(i.get_parent().get_tip().get_location()-storetip[i][j][0])
-
-                if i.get_parent()==storevec[i][j][1]:
+                distmin=np.linalg.norm(i.get_parent().get_tip().get_location()-storevec[i][j][2])
+                
+                vec1=i.get_location()-i.get_parent().get_tip().get_location()
+                vec2=storevec[i][j][0]
+                if i.get_parent()==storevec[i][j][1]:                                                                           #no angle calculation if comparing center to itself
                     angle=0.0
                 else:
-                    angle=vg.signed_angle(i.get_location()-i.get_parent().get_tip().get_location(),storevec[i][j][0], look=vg.basis.z)
-            
-                if angle < 0:
-                    angle = angle+360
+                    #angle=vg.signed_angle(vec1,vec2, look=vg.basis.z)
+                    angle=np.arccos(np.dot(vec1,vec2)/(np.linalg.norm(vec1)*np.linalg.norm(vec2)))                              #angle calculation between i central res and j cluster res
 
-                hydclust=hyddict[i]
+                #if angle < 0:
+                    #angle = angle+360
+
+                hydclust=hyddict[i]                                                                                                #get cluster information for each i central atom
                 
-                angles[i].append([(angle),(distmin),(hydclust),(i.get_parent().get_name(),storevec[i][j][1].get_name())])
+                angles[i].append([(angle),(distmin),(hydclust),(i.get_parent().get_name(),storevec[i][j][1].get_name())])           #stores angle,distmin,hydrophobicity of cluster, and respair in dict angles
                 
-                
-#################   #################   #################   #################   #################   #################                   
+    
+ #############################################################################################################            
                         
     this=[]
-    
-    
-    for i in angles.keys():
+    fdict=dict()
+        
+    for i in angles.keys():                                                                 #create sorted dictionary with respairs as keys
         for j in range(0,len(angles[i])):
             key=sorted(angles[i][j][3])
             this=angles[i][j]    
@@ -168,36 +162,30 @@ def pull_clusters(filename, cutoff_val, chain_id,nhyd):
                 fdict[ key[0]+'-'+key[1] ]=[]
                 fdict[ key[0]+'-'+key[1] ].append(this)
     
- 
-
-
-    
-    
    
-    
-    anglesdists=[]
-    
-    for i in fdict.keys():
-        for j in range(0,len(fdict[i])):
-            try:
-                nhyd[i].append(fdict[i][j][2])
-            except:
-                nhyd[i]=list()
-                nhyd[i].append(fdict[i][j][2])
-    
-    
-    
-    
-    
-   
-    
-    
-  
-        #for i in angles.keys():
-            #print(i.get_parent().get_id())
-        #print(angles)
     
     print(k)
+    for i in fdict.keys():                                                                  #append nhyd with cluster hydrophobicity data
+        for j in range(0,len(fdict[i])):
+            if fdict[i][j][0]==0.0:
+                continue
+            else:
+                try:
+                    nhyd[i].append(fdict[i][j][2])
+                except:
+                    nhyd[i]=list()
+                    nhyd[i].append(fdict[i][j][2])                                             
+
+    
+    for i in fdict.keys():                                                                      # append fdict2 with fdict data
+        for j in range(0,len(fdict[i])):
+            if fdict[i][j][0]==0.0:
+                continue
+            else:
+                fdict2[i].append(fdict[i][j])
+               
+
+
     #############################################################################################################
 
     for key, val in store.items():
@@ -207,8 +195,12 @@ def pull_clusters(filename, cutoff_val, chain_id,nhyd):
             retDict[str(cluster_types[key].count("HB"))+"/"+str(cluster_types[key].count("HP"))] = list()
             retDict[str(cluster_types[key].count("HB"))+"/"+str(cluster_types[key].count("HP"))].append(val)
             
-    return retDict,nhyd
+    return retDict,fdict2,nhyd
 
+
+
+
+###########################################################################################################################################################
 
 
 
@@ -217,26 +209,106 @@ with open('newnewnamestring.txt', 'r') as f:              #txt of all pdb file n
     
 
 
-leng=len(namestring)
+leng=len(namestring)     
 names=[]
 for i in range(0,leng):
-    names.append(namestring[i])
+    names.append(namestring[i])                          
 
-#fulldict={'0.9':list(),'0.8':list(),'0.7':list(),'0.6':list(),'0.5':list(),'0.4':list(),'0.3':list(),'0.2':list(),'0.1':list(),'-0.0':list(),'-0.1':list(),'-0.2':list(),'-0.3':list(),'0.4':list()}
+#fdict2 is a inter-PDBfile dictionary with [respairs] as keys that contains all [angle,distance,hydrophbicity] data 
+fdict2={'ARG-ARG':list(), 'ARG-ASN':list(), 'ARG-ASP':list(), 'ARG-CYS':list(), 'ARG-GLN':list(), 'ARG-GLU':list(), 'ARG-HIS':list(), 'ARG-ILE':list(), 'ARG-LEU':list(), 'ARG-LYS':list(), 'ARG-MET':list(), 'ARG-PHE':list(), 'ARG-PRO':list(), 'ARG-SER':list(), 'ARG-THR':list(), 'ARG-TRP':list(), 'ARG-TYR':list(), 'ARG-VAL':list(), 'ASN-ASN':list(), 'ASN-ASP':list(), 'ASN-CYS':list(), 'ASN-GLN':list(), 'ASN-GLU':list(), 'ASN-HIS':list(), 'ASN-ILE':list(), 'ASN-LEU':list(), 'ASN-LYS':list(), 'ASN-MET':list(), 'ASN-PHE':list(), 'ASN-PRO':list(), 'ASN-SER':list(), 'ASN-THR':list(), 'ASN-TRP':list(), 'ASN-TYR':list(), 'ASN-VAL':list(), 'ASP-ASP':list(), 'ASP-CYS':list(), 'ASP-GLN':list(), 'ASP-GLU':list(), 'ASP-HIS':list(), 'ASP-ILE':list(), 'ASP-LEU':list(), 'ASP-LYS':list(), 'ASP-MET':list(), 'ASP-PHE':list(), 'ASP-PRO':list(), 'ASP-SER':list(), 'ASP-THR':list(), 'ASP-TRP':list(), 'ASP-TYR':list(), 'ASP-VAL':list(), 'CYS-CYS':list(), 'CYS-GLN':list(), 'CYS-GLU':list(), 'CYS-HIS':list(), 'CYS-ILE':list(), 'CYS-LEU':list(), 'CYS-LYS':list(), 'CYS-MET':list(), 'CYS-PHE':list(), 'CYS-PRO':list(), 'CYS-SER':list(), 'CYS-THR':list(), 'CYS-TRP':list(), 'CYS-TYR':list(), 'CYS-VAL':list(), 'GLN-GLN':list(), 'GLN-GLU':list(), 'GLN-HIS':list(), 'GLN-ILE':list(), 'GLN-LEU':list(), 'GLN-LYS':list(), 'GLN-MET':list(), 'GLN-PHE':list(), 'GLN-PRO':list(), 'GLN-SER':list(), 'GLN-THR':list(), 'GLN-TRP':list(), 'GLN-TYR':list(), 'GLN-VAL':list(), 'GLU-GLU':list(), 'GLU-HIS':list(), 'GLU-ILE':list(), 'GLU-LEU':list(), 'GLU-LYS':list(), 'GLU-MET':list(), 'GLU-PHE':list(), 'GLU-PRO':list(), 'GLU-SER':list(), 'GLU-THR':list(), 'GLU-TRP':list(), 'GLU-TYR':list(), 'GLU-VAL':list(), 'HIS-HIS':list(), 'HIS-ILE':list(), 'HIS-LEU':list(), 'HIS-LYS':list(), 'HIS-MET':list(), 'HIS-PHE':list(), 'HIS-PRO':list(), 'HIS-SER':list(), 'HIS-THR':list(), 'HIS-TRP':list(), 'HIS-TYR':list(), 'HIS-VAL':list(), 'ILE-ILE':list(), 'ILE-LEU':list(), 'ILE-LYS':list(), 'ILE-MET':list(), 'ILE-PHE':list(), 'ILE-PRO':list(), 'ILE-SER':list(), 'ILE-THR':list(), 'ILE-TRP':list(), 'ILE-TYR':list(), 'ILE-VAL':list(), 'LEU-LEU':list(), 'LEU-LYS':list(), 'LEU-MET':list(), 'LEU-PHE':list(), 'LEU-PRO':list(), 'LEU-SER':list(), 'LEU-THR':list(), 'LEU-TRP':list(), 'LEU-TYR':list(), 'LEU-VAL':list(), 'LYS-LYS':list(), 'LYS-MET':list(), 'LYS-PHE':list(), 'LYS-PRO':list(), 'LYS-SER':list(), 'LYS-THR':list(), 'LYS-TRP':list(), 'LYS-TYR':list(), 'LYS-VAL':list(), 'MET-MET':list(), 'MET-PHE':list(), 'MET-PRO':list(), 'MET-SER':list(), 'MET-THR':list(), 'MET-TRP':list(), 'MET-TYR':list(), 'MET-VAL':list(), 'PHE-PHE':list(), 'PHE-PRO':list(), 'PHE-SER':list(), 'PHE-THR':list(), 'PHE-TRP':list(), 'PHE-TYR':list(), 'PHE-VAL':list(), 'PRO-PRO':list(), 'PRO-SER':list(), 'PRO-THR':list(), 'PRO-TRP':list(), 'PRO-TYR':list(), 'PRO-VAL':list(), 'SER-SER':list(), 'SER-THR':list(), 'SER-TRP':list(), 'SER-TYR':list(), 'SER-VAL':list(), 'THR-THR':list(), 'THR-TRP':list(), 'THR-TYR':list(), 'THR-VAL':list(), 'TRP-TRP':list(), 'TRP-TYR':list(), 'TRP-VAL':list(), 'TYR-TYR':list(), 'TYR-VAL':list(), 'VAL-VAL':list()}
+
 nhyd=dict()
-for numk,k in enumerate(names[:10]):
-    try:
-        out,nhyd = pull_clusters(k+'.pdb', 12.0, "A",nhyd)  #Here are all your clusters with ids -number of hydrophobic residue/number of hydrophilic residues
+
+for i,k in enumerate(names[:2000]):
+
+    print(i)
+    #out,fdict2,nhyd = pull_clusters(k+'.pdb', 10.0, "A",fdict2,nhyd)
+    try:   
+        out,fdict2,nhyd = pull_clusters(k+'.pdb', 12.0, "A",fdict2,nhyd)  #Here are all your clusters with ids -number of hydrophobic residue/number of hydrophilic residues
     except:
         continue
-def hyd(nhyd):
-    for i in nhyd.keys():
-     
-        k=10
-        clusters, centroids = kmeans1d.cluster(nhyd[i], k)
-        print(i,centroids,clusters,nhyd[i])
-        
-        #print(i,centroids)
 
-hyd(nhyd)
+                                                                                                                                                                                                  #centroids: ang/dist data
+def hyd(nhyd,fdict2):                                              #hyd creates kmeans clusters from fdict and sorts the data into nested dictionary then returns it. newdict=dict with structure respair:centroids: ang/dist data
+    k=10                                                                                                                                                                                          #centroids: ang/dist data
+    newdict=dict()
+    newdict2=dict()
+    for i in fdict2.keys():
+        newdict2[i]=defaultdict(list)
+        newdict[i]=defaultdict(list)
+        clusters, centroids = kmeans1d.cluster(nhyd[i], k)
+        for j,z in zip(clusters,fdict2[i]):
+            try:
+                newdict2[i][j].append([z[0],z[1],z[2],j,i])
+            except KeyError:
+                
+                newdict2[i][j]=list()
+                newdict2[i][j].append([z[0],z[1],z[2],j,i])
+                #newdict2[i].append({j:[z[0],z[1],z[2],j]})
+        for n in centroids:
+            try:
+                newdict[i][n]
+            except KeyError:
+                newdict[i][n]=list()
+                #newdict[i][n].append(list())
+        #for j in range(0,newdict[i]):
+            #print(newdict[i][j])
+        for b,v in enumerate(newdict[i]):
+            #print(newdict2[i][b])
+            #if b==newdict2[i]
+            #fuck=list(newdict2[i][b].values())
+            #print(b,v)
+        
+            newdict[i][v].append(newdict2[i][b])
+            
+    return newdict
+
+def writefile(fulldict):                                                                                    #writefile takes in dictionary from hyd and creates np angle/distance matrix file for each respair and centroid
+    
+    addition = np.zeros(shape=(360, 24))
+    
+    keydict=dict()
+    #keydict2=dict()
+    
+
+    for i in fulldict.keys():
+        for j in fulldict[i].keys():
+            #print(i,j,fulldict[i][j][0][0][0],fulldict[i][j][0][0][2],fulldict[i][j][0][0][4])
+            for numk,k in enumerate(fulldict[i][j][0]):
+                #print(i,j,fulldict[i][j][0][numk][0],fulldict[i][j][0][numk][2],fulldict[i][j][0][numk][4])
+                
+                try:
+                    keydict[str(i)+ ' '+str(j)+'.txt']
+                except:
+
+                    keydict[str(i)+ ' '+str(j)+'.txt']=[list(),list()]
+                
+                x=fulldict[i][j][0][numk][0]
+                y=fulldict[i][j][0][numk][1]
+                
+                keydict[str(i)+ ' '+str(j)+'.txt'][0].append(x)
+                keydict[str(i)+ ' '+str(j)+'.txt'][1].append(y)
+    for key,val in keydict.items():                   #### keydict2 for no repititions within a hydcluster
+        try:
+            mtx=np.histogram2d(val[0],val[1],bins=(180, 24),range=[[0,360],[0,12]])
+    
+            
+        
+            np.savetxt(key,mtx[0],fmt='%i')
+        except:
+            print(val[0],val[1])
+            continue
+        
+
+  
+ 
+    return True
+
+
+writefile(hyd(nhyd,fdict2))
+
+
 # This is for one PDB id. You can collect this for many pdb ids and merge the clusters.
+    
+    
+            
