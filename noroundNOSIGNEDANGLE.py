@@ -141,10 +141,10 @@ def pull_clusters(filename, cutoff_val, chain_id,fulldict):
                 if i.get_parent()==storevec[i][j][1]:
                     angle=0.0
                 else:
-                    angle=vg.signed_angle(i.get_location()-i.get_parent().get_tip().get_location(),storevec[i][j][0], look=None)
-                
-                if angle < 0:
-                    angle = angle+360
+                    #angle=vg.signed_angle(i.get_location()-i.get_parent().get_tip().get_location(),storevec[i][j][0], look=None)
+                    angle=vg.angle(i.get_location()-i.get_parent().get_tip().get_location(),storevec[i][j][0],look=None,units="deg")
+                #if angle < 0:
+                    #angle = angle+360
 
                 hydclust=hyddict[i]
                 
@@ -256,7 +256,6 @@ def pull_clusters(filename, cutoff_val, chain_id,fulldict):
 
 def writefile(fulldict):
     
-    addition = np.zeros(shape=(360, 24))
     
     keydict=dict()
     #keydict2=dict()
@@ -279,7 +278,7 @@ def writefile(fulldict):
     
     for key,val in keydict.items():                   #### keydict2 for no repititions within a hydcluster
         try:
-            mtx=np.histogram2d(val[0],val[1],bins=(180, 24),range=[[0,360],[0,12]])
+            mtx=np.histogram2d(val[0],val[1],bins=(180, 24),range=[[0,180],[0,12]])
     
             
         

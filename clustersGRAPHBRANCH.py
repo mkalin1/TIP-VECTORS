@@ -20,5 +20,5 @@ for filename in files:
     df=pd.DataFrame(data=full,index=np.array(range(0,180)),columns=np.array(range(0,24)))
     dft=df.transpose()         
     sns.heatmap(dft)                      
-    plt.savefig(filename[:-4]+' 2 DEGREE BINS'+'.png',format='PNG') 
+    plt.savefig(filename[:-4]+'.png',format='PNG') 
     plt.close()
