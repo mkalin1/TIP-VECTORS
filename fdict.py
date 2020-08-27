@@ -11,7 +11,7 @@ from os import path
 import math
 import timeit
 import kmeans1d
-
+from collections import defaultdict
 def pull_clusters(filename, cutoff_val, chain_id,fdict2,nhyd):
     
     hydrophobicity={
@@ -226,12 +226,12 @@ fdict2={'ARG-ARG':list(), 'ARG-ASN':list(), 'ARG-ASP':list(), 'ARG-CYS':list(), 
 
 nhyd=dict()
 
-for i,k in enumerate(names[:5]):
+for i,k in enumerate(names[:5000]):
 
     print(i)
     #out,fdict2,nhyd = pull_clusters(k+'.pdb', 10.0, "A",fdict2,nhyd)
     try:   
-        out,fdict2,nhyd = pull_clusters(k+'.pdb', 10.0, "A",fdict2,nhyd)  #Here are all your clusters with ids -number of hydrophobic residue/number of hydrophilic residues
+        out,fdict2,nhyd = pull_clusters(k+'.pdb', 12.0, "A",fdict2,nhyd)  #Here are all your clusters with ids -number of hydrophobic residue/number of hydrophilic residues
     except:
         continue
 
@@ -240,53 +240,121 @@ def hyd(nhyd,fdict2):
     newdict=dict()
     newdict2=dict()
     for i in fdict2.keys():
+        newdict2[i]=defaultdict(list)
+        newdict[i]=defaultdict(list)
         clusters, centroids = kmeans1d.cluster(nhyd[i], k)
         for j,z in zip(clusters,fdict2[i]):
             try:
-                newdict2[i].append({j:[z[0],z[1],z[2],j]})
+                newdict2[i][j].append([z[0],z[1],z[2],j,i])
             except KeyError:
-                newdict2[i]=list()
-                newdict2[i].append({j:[z[0],z[1],z[2],j]})
+                
+                newdict2[i][j]=list()
+                newdict2[i][j].append([z[0],z[1],z[2],j,i])
+                #newdict2[i].append({j:[z[0],z[1],z[2],j]})
         for n in centroids:
             try:
-                newdict[i].append(n=defaultdict(list))
+                newdict[i][n]
             except KeyError:
-                newdict[i]=list()
-                newdict[i].append(n=defaultdict(list))
+                newdict[i][n]=list()
+                #newdict[i][n].append(list())
         #for j in range(0,newdict[i]):
             #print(newdict[i][j])
         for b,v in enumerate(newdict[i]):
-            #fuck=list(newdict2[i][b].values())
-            print(newdict[i][b])
-            #newdict[i][b]=list(newdict2[i][b].values())
-            
-            #print(b,v)
             #print(newdict2[i][b])
-    #print(newdict)        
-    #print(newdict2)
-          
-                
-            #for numj,j in enumerate(newdict[i]):
-                #newdict[i][n].append([fdict2[i][numj][2],clusters[numj]])
-                #newdict[i].append([fdict2[i][j][2],clusters[j]])
-            #print(fdict2[i][j][2],clusters[j])
-        #for numh,h in enumerate(newdict[i]):
-            #print(numh,h)
-          
-    #print(newdict)
-           
-                
-                
+            #if b==newdict2[i]
+            #fuck=list(newdict2[i][b].values())
+            #print(b,v)
+        
+            newdict[i][v].append(newdict2[i][b])
             
-            #print(fdict2[i][j],clusters)
-        
-        
-        #print(i,centroids)
+    return newdict
+    
+def writefile(fulldict):
+    
+    addition = np.zeros(shape=(360, 24))
+    
+    keydict=dict()
+    #keydict2=dict()
+    
 
-hyd(nhyd,fdict2)
+    for i in fulldict.keys():
+        for j in fulldict[i].keys():
+            #print(i,j,fulldict[i][j][0][0][0],fulldict[i][j][0][0][2],fulldict[i][j][0][0][4])
+            for numk,k in enumerate(fulldict[i][j][0]):
+                #print(i,j,fulldict[i][j][0][numk][0],fulldict[i][j][0][numk][2],fulldict[i][j][0][numk][4])
+                
+                try:
+                    keydict[str(i)+ ' '+str(j)+'.txt']
+                except:
+
+                    keydict[str(i)+ ' '+str(j)+'.txt']=[list(),list()]
+                
+                x=fulldict[i][j][0][numk][0]
+                y=fulldict[i][j][0][numk][1]
+                
+                keydict[str(i)+ ' '+str(j)+'.txt'][0].append(x)
+                keydict[str(i)+ ' '+str(j)+'.txt'][1].append(y)
+    for key,val in keydict.items():                   #### keydict2 for no repititions within a hydcluster
+        try:
+            mtx=np.histogram2d(val[0],val[1],bins=(180, 24),range=[[0,360],[0,12]])
+    
+            
+        
+            np.savetxt(key,mtx[0],fmt='%i')
+        except:
+            print(val[0],val[1])
+            continue
+        
+
+  
+ 
+    return True
+ 
+                
+writefile(hyd(nhyd,fdict2))
 
 
 # This is for one PDB id. You can collect this for many pdb ids and merge the clusters.
     
     
- 
+'''
+            z=[2]
+            try:
+                keydict[i+ ' '+j+'.txt']
+            except:
+
+                keydict[i+ ' '+j+'.txt']=[list(),list()]
+            
+            x=j[0]
+            y=j[1]
+            
+            keydict[i+ ' '+z+'.txt'][0].append(x)
+            keydict[i+ ' '+z+'.txt'][1].append(y)
+          
+    for key,val in keydict.items():                   #### keydict2 for no repititions within a hydcluster
+        try:
+            mtx=np.histogram2d(val[0],val[1],bins=(180, 24),range=[[0,360],[0,12]])
+    
+            
+        
+            np.savetxt(key,mtx[0],fmt='%i')
+        except:
+            print(val[0],val[1])
+            continue
+    for key,val in keydict2.items():
+        check=dict()
+        for n,i in enumerate(val[0]):
+            try:
+                check[i]
+                continue
+            except:
+                check[i]="NA"
+                try:
+                    keydict2[key][0].append(i)
+                    keydict2[key][1].append(val[1][n])
+                except:
+                    keydict2[key]=[list(),list()]
+                    keydict2[key][0].append(i)
+                    keydict2[key][1].append(val[1][n])
+'''
+            

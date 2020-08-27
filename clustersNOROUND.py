@@ -276,6 +276,17 @@ def writefile(fulldict):
             
             keydict[i+ ' '+z+'.txt'][0].append(x)
             keydict[i+ ' '+z+'.txt'][1].append(y)
+    
+    for key,val in keydict.items():                   #### keydict2 for no repititions within a hydcluster
+        try:
+            mtx=np.histogram2d(val[0],val[1],bins=(180, 24),range=[[0,360],[0,12]])
+    
+            
+        
+            np.savetxt(key,mtx[0],fmt='%i')
+        except:
+            print(val[0],val[1])
+            continue
     '''
     for key,val in keydict.items():
         check=dict()
@@ -295,7 +306,7 @@ def writefile(fulldict):
     '''
             
  
-    return keydict
+    return True
 
 
 with open('newnewnamestring.txt', 'r') as f:              #txt of all pdb file names to download
