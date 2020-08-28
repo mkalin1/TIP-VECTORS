@@ -145,16 +145,9 @@ def pull_clusters(filename, cutoff_val, chain_id,fdict2,nhyd):
                 continue
             else:
                 fdict2[i].append(fdict[i][j])
-               
-
-
-   
-
+  
             
     return fdict2,nhyd
-
-
-
 
 ###########################################################################################################################################################
 
@@ -188,7 +181,7 @@ for i,k in enumerate(names[:2000]):
 
         
 def hyd(nhyd,fdict2):                                              #hyd creates kmeans clusters from fdict and sorts the data into nested dictionary then returns it. newdict=dict with structure respair:centroids: ang/dist data
-    k=6                                                                                                                                                                                          #centroids: ang/dist data
+    k=4                                                                 #### plot hydrophobicity to confirm # of kclusters                                                                                                                                                                        #centroids: ang/dist data
     newdict=dict()
     newdict2=dict()
     for i in fdict2.keys():
@@ -218,7 +211,7 @@ def writefile(fulldict):                                                        
     for i in fulldict.keys():
         for j in fulldict[i].keys():
             #print(i,j,fulldict[i][j][0][0][0],fulldict[i][j][0][0][2],fulldict[i][j][0][0][4])
-            for numk,k in enumerate(fulldict[i][j][0]):
+            for k in range(0,len(fulldict[i][j][0])):
                 #print(i,j,fulldict[i][j][0][numk][0],fulldict[i][j][0][numk][2],fulldict[i][j][0][numk][4])
                 try:
                     keydict[str(i)+ ' '+str(j)+'.txt']
@@ -226,12 +219,12 @@ def writefile(fulldict):                                                        
 
                     keydict[str(i)+ ' '+str(j)+'.txt']=[list(),list()]
                 
-                x=fulldict[i][j][0][numk][0]
-                y=fulldict[i][j][0][numk][1]
+                x=fulldict[i][j][0][k][0]
+                y=fulldict[i][j][0][k][1]
                 
                 keydict[str(i)+ ' '+str(j)+'.txt'][0].append(x)
                 keydict[str(i)+ ' '+str(j)+'.txt'][1].append(y)
-    for key,val in keydict.items():                   #### keydict2 for no repititions within a hydcluster
+    for key,val in keydict.items():                                                               #### create and save matrix
         try:
             mtx=np.histogram2d(val[0],val[1],bins=(180, 24),range=[[0,180],[0,12]])
     
