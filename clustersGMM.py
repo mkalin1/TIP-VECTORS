@@ -170,7 +170,7 @@ fdict2={'ARG-ARG':list(), 'ARG-ASN':list(), 'ARG-ASP':list(), 'ARG-CYS':list(), 
 
 nhyd=dict()
 
-for i,k in enumerate(names[:5]):
+for i,k in enumerate(names[:50]):
 
     print(i)
     #out,fdict2,nhyd = pull_clusters(k+'.pdb', 10.0, "A",fdict2,nhyd)
@@ -209,8 +209,9 @@ def hyd(nhyd,fdict2):                                              #hyd creates 
 def gmm(nhyd):
     N=np.arange(1,11)
    
-    models=[None for i in range(len(N))]
     for i in nhyd.keys():
+        models=[None for i in range(len(N))]
+
         X=np.array([])
         for j in range(0,len(nhyd[i])):
             
@@ -220,10 +221,10 @@ def gmm(nhyd):
 
         for k in range(len(N)):
             models[k]=mixture.GaussianMixture(n_components=N[k],covariance_type='full').fit(X)
-        AIC=[m.aic(X) for m in models]
+        #AIC=[m.aic(X) for m in models]
         BIC=[m.bic(X) for m in models]
         M_best = models[np.argmin(BIC)]
-        print(AIC,BIC,i)
+        print(BIC,M_best,i)
            
     return True    
 
