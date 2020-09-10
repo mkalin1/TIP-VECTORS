@@ -15,7 +15,7 @@ from collections import defaultdict
 from sklearn import mixture
 
 
-def pull_clusters(filename, cutoff_val, chain_id,fdict2,nhyd):
+def pull_clusters(filename, cutoff_val, chain_id,nhyd):
     
     hydrophobicity={'ALA':0.20,'CYS':4.10,'ASP':-3.1,'GLU':-1.8,'PHE':4.40,'GLY':0.00,'HIS':0.50,'ILE':4.80,'LYS':-3.1,                      #dict containing hydrophobicity value of each residue
     'LEU':5.70,'MET':4.20,'ASN':-0.5,'PRO':-2.2,'GLN':-2.8,'ARG':1.40,'SER':-0.5,'THR':-1.9,'VAL':4.70,'TRP':1.00,'TYR':3.20}
@@ -128,7 +128,7 @@ def pull_clusters(filename, cutoff_val, chain_id,fdict2,nhyd):
     
    
     
-    print(k)
+    #print(k)
     for i in fdict.keys():                                                                  #append nhyd with cluster hydrophobicity data
         for j in range(0,len(fdict[i])):
             if fdict[i][j][0]==0.0:
@@ -149,7 +149,7 @@ def pull_clusters(filename, cutoff_val, chain_id,fdict2,nhyd):
                 fdict2[i].append(fdict[i][j])
   
             
-    return fdict2,nhyd
+    return nhyd
 
 ###########################################################################################################################################################
 
@@ -172,10 +172,10 @@ nhyd=dict()
 
 for i,k in enumerate(names[:1000]):
 
-    print(i)
+    #print(i)
     #out,fdict2,nhyd = pull_clusters(k+'.pdb', 10.0, "A",fdict2,nhyd)
     try:   
-        fdict2,nhyd = pull_clusters(k+'.pdb', 12.0, "A",fdict2,nhyd)  #Here are all your clusters with ids -number of hydrophobic residue/number of hydrophilic residues
+        nhyd = pull_clusters(k+'.pdb', 12.0, "A",nhyd)  #Here are all your clusters with ids -number of hydrophobic residue/number of hydrophilic residues
     except:
         continue
 
@@ -207,25 +207,7 @@ def hyd(nhyd,fdict2):                                              #hyd creates 
     return newdict
 
 def gmm(nhyd):
-    N=np.arange(1,11)
-   
-    for i in nhyd.keys():
-        models=[None for i in range(len(N))]
-
-        X=np.array([])
-        for j in range(0,len(nhyd[i])):
-            
-            X=np.append(X,[nhyd[i][j]]).reshape(-1,1)
-            #print(X)
-            X=np.concatenate(X).reshape(-1,1)
-        
-       
-        for k in range(len(N)):
-            models[k]=mixture.GaussianMixture(n_components=N[k],covariance_type='spherical').fit(X)
-        #AIC=[m.aic(X) for m in models]
-        BIC=[m.bic(X) for m in models]
-        M_best = models[np.argmin(BIC)]
-        print(M_best,i)
+    print(nhyd)
            
     return True    
 

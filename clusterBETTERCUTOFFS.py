@@ -12,8 +12,6 @@ import math
 import timeit
 import kmeans1d
 from collections import defaultdict
-from sklearn import mixture
-
 
 def pull_clusters(filename, cutoff_val, chain_id,fdict2,nhyd):
     
@@ -21,8 +19,13 @@ def pull_clusters(filename, cutoff_val, chain_id,fdict2,nhyd):
     'LEU':5.70,'MET':4.20,'ASN':-0.5,'PRO':-2.2,'GLN':-2.8,'ARG':1.40,'SER':-0.5,'THR':-1.9,'VAL':4.70,'TRP':1.00,'TYR':3.20}
 
     mol=molecule.load_structure(filename)
-    coordObj_atoms=[i for i in mol[0].get_calpha()]
-    coordObj=[i.get_location() for i in mol[0].get_calpha()]
+    
+    coordObj_atoms=[i.get_parent().get_tip() for i in mol[0].get_calpha()]
+    #coordObj_atoms=[i for i in mol[0].get_calpha()]
+    #print(coordObj_atoms)
+    coordObj=[i.get_parent().get_tip().get_location() for i in mol[0].get_calpha()]
+    #coordObj=[i.get_location() for i in mol[0].get_calpha()]
+    #print(coordObj)
     distance_mat = squareform(pdist(coordObj))
     n = len(distance_mat)
     interacting_residue_pairs = np.where( distance_mat <= cutoff_val )
@@ -39,13 +42,15 @@ def pull_clusters(filename, cutoff_val, chain_id,fdict2,nhyd):
         except KeyError:
             store[i] = list()
             storevec[coordObj_atoms[i]]=list()
-            
+        
         
         
         store[i].append(coordObj_atoms[j].get_parent().get_name())                          #dict of cluster w/ resnames
         if i>=j:
-            storevec[coordObj_atoms[i]].append([(coordObj_atoms[j].get_location()-coordObj_atoms[j].get_parent().get_tip().get_location()),coordObj_atoms[j].get_parent(),coordObj_atoms[j].get_parent().get_tip().get_location()])      #stores key=central res (i): values(calpha-tip vctors, molobj (j), tiplocation(j))
-        
+            storevec[coordObj_atoms[i]].append([(coordObj_atoms[j].get_parent().get_calpha().get_location()-coordObj_atoms[j].get_location()),coordObj_atoms[j].get_parent(),coordObj_atoms[j].get_location()])      #stores key=central res (i): values(calpha-tip vctors, molobj (j), tiplocation(j))
+       
+        #print(coordObj_atoms[j].get_parent().get_calpha().get_location(),coordObj_atoms[j].get_parent().get_name())
+        #print(coordObj_atoms[j].get_location(),coordObj_atoms[j].get_parent().get_name())
     
     ##########################################################################
     
@@ -92,9 +97,9 @@ def pull_clusters(filename, cutoff_val, chain_id,fdict2,nhyd):
             
             if storevec[i][j][1].get_name()!='GLY' and storevec[i][j][1].get_name()!='ALA':                                     # skips over gly/ala within a cluster
                 
-                distmin=np.linalg.norm(i.get_parent().get_tip().get_location()-storevec[i][j][2])
+                distmin=np.linalg.norm(i.get_location()-storevec[i][j][2])
                 
-                vec1=i.get_location()-i.get_parent().get_tip().get_location()
+                vec1=i.get_parent().get_calpha().get_location()-i.get_location()
                 vec2=storevec[i][j][0]
                 if i.get_parent()==storevec[i][j][1]:                                                                           #no angle calculation if comparing center to itself
                     angle=0.0
@@ -109,9 +114,9 @@ def pull_clusters(filename, cutoff_val, chain_id,fdict2,nhyd):
                 
                 angles[i].append([(angle),(distmin),(hydclust),(i.get_parent().get_name(),storevec[i][j][1].get_name())])           #stores angle,distmin,hydrophobicity of cluster, and respair in dict angles
                 
-    
+    #print(angles)
  #############################################################################################################            
-                        
+             
     this=[]
     fdict=dict()
         
@@ -170,20 +175,21 @@ fdict2={'ARG-ARG':list(), 'ARG-ASN':list(), 'ARG-ASP':list(), 'ARG-CYS':list(), 
 
 nhyd=dict()
 
-for i,k in enumerate(names[:1000]):
+for i,k in enumerate(names[:2000]):
 
     print(i)
     #out,fdict2,nhyd = pull_clusters(k+'.pdb', 10.0, "A",fdict2,nhyd)
     try:   
+    #fdict2,nhyd = pull_clusters(k+'.pdb', 12.0, "A",fdict2,nhyd)
         fdict2,nhyd = pull_clusters(k+'.pdb', 12.0, "A",fdict2,nhyd)  #Here are all your clusters with ids -number of hydrophobic residue/number of hydrophilic residues
     except:
         continue
 
 
 
-        
+ 
 def hyd(nhyd,fdict2):                                              #hyd creates kmeans clusters from fdict and sorts the data into nested dictionary then returns it. newdict=dict with structure respair:centroids: ang/dist data
-    k=4                                                                 #### plot hydrophobicity to confirm # of kclusters                                                                                                                                                                        #centroids: ang/dist data
+    k=6                                                                 #### plot hydrophobicity to confirm # of kclusters                                                                                                                                                                        #centroids: ang/dist data
     newdict=dict()
     newdict2=dict()
     for i in fdict2.keys():
@@ -205,33 +211,6 @@ def hyd(nhyd,fdict2):                                              #hyd creates 
             newdict[i][v].append(newdict2[i][b])
             
     return newdict
-
-def gmm(nhyd):
-    N=np.arange(1,11)
-   
-    for i in nhyd.keys():
-        models=[None for i in range(len(N))]
-
-        X=np.array([])
-        for j in range(0,len(nhyd[i])):
-            
-            X=np.append(X,[nhyd[i][j]]).reshape(-1,1)
-            #print(X)
-            X=np.concatenate(X).reshape(-1,1)
-        
-       
-        for k in range(len(N)):
-            models[k]=mixture.GaussianMixture(n_components=N[k],covariance_type='spherical').fit(X)
-        #AIC=[m.aic(X) for m in models]
-        BIC=[m.bic(X) for m in models]
-        M_best = models[np.argmin(BIC)]
-        print(M_best,i)
-           
-    return True    
-
-
-
-
 
 def writefile(fulldict):                                                                                    #writefile takes in dictionary from hyd and creates np angle/distance matrix file for each respair and centroid
     
@@ -270,7 +249,7 @@ def writefile(fulldict):                                                        
     return True
 
 
-gmm(nhyd)
+writefile(hyd(nhyd,fdict2))
 
 
 # This is for one PDB id. You can collect this for many pdb ids and merge the clusters.
