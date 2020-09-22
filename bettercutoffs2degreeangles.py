@@ -174,7 +174,7 @@ fdict2={'ARG-ARG':list(), 'ARG-ASN':list(), 'ARG-ASP':list(), 'ARG-CYS':list(), 
 
 nhyd=dict()
 
-for i,k in enumerate(names[:2000]):
+for i,k in enumerate(names[:3000]):
 
     print(i)
     #out,fdict2,nhyd = pull_clusters(k+'.pdb', 10.0, "A",fdict2,nhyd)
@@ -218,7 +218,7 @@ def hyd(nhyd,fdict2):                                              #hyd creates 
             
     return newdict
 
-
+'''
 def stats(fdict2):
     for i in fdict2.keys():
         resangles=list()
@@ -228,34 +228,62 @@ def stats(fdict2):
             resangles.append(fdict2[i][j][0])
             resdistance.append(fdict2[i][j][1])
             reshyd.append(fdict2[i][j][2])
-    #print(i, " ", np.mean(resangles), " ", np.mean(resdistance), " ", np.mean(reshyd))
-    #print(i, " ", np.var(resangles), " ", np.var(resdistance), " ", np.var(reshyd))
+    #print(i, " ", resangles, " ", resdistance, " ", reshyd)
+'''
 
 
-#stats(fdict2)
+
 def writefile(fulldict):                                                                                    #writefile takes in dictionary from hyd and creates np angle/distance matrix file for each respair and centroid
-    
+    anglesdict=dict()
+    distdict=dict()
     keydict=dict()
     #keydict2=dict()
     for i in fulldict.keys():
         for j in fulldict[i].keys():
             #print(i,j,fulldict[i][j][0][0][0],fulldict[i][j][0][0][2],fulldict[i][j][0][0][4])
+            resangles=list()
+            resdistance=list()
+            distdict[i]=defaultdict(list)
+            anglesdict[i]=defaultdict(list)
+            
+            for l in range(0,len(fulldict[i][j][0])):
+                
+                resangles.append(fulldict[i][j][0][l][0])
+                resdistance.append(fulldict[i][j][0][l][1])
+            try:
+                anglesdict[i][j].append([np.mean(resangles),np.var(resangles)])
+                distdict[i][j].append([np.mean(resdistance),np.var(resdistance)])
+            except KeyError:
+                anglesdict[i][j] = list()
+                distdict[i][j]=list()
+                anglesdict[i][j].append([np.mean(resangles),np.var(resangles)])
+                distdict[i][j].append([np.mean(resdistance),np.var(resdistance)])
+          
+
             for k in range(0,len(fulldict[i][j][0])):
+                
+                
                 #print(i,j,fulldict[i][j][0][numk][0],fulldict[i][j][0][numk][2],fulldict[i][j][0][numk][4])
                 try:
-                    keydict[str(i)+ ' '+str(j)+'.txt']
+                    keydict[str(i)+ ' '+str(round(j,2))+' '+str(round(anglesdict[i][j][0][0],2))+' ' +str(round(anglesdict[i][j][0][1],2))+' '+str(round(distdict[i][j][0][0],2))+' '+str(round(distdict[i][j][0][1],2))+'.txt']
                 except:
 
-                    keydict[str(i)+ ' '+str(j)+'.txt']=[list(),list()]
+                    keydict[str(i)+ ' '+str(round(j,2))+' '+str(round(anglesdict[i][j][0][0],2))+' ' +str(round(anglesdict[i][j][0][1],2))+' '+str(round(distdict[i][j][0][0],2))+' '+str(round(distdict[i][j][0][1],2))+'.txt']=[list(),list()]
                 
+ 
                 x=fulldict[i][j][0][k][0]
                 y=fulldict[i][j][0][k][1]
                 
-                keydict[str(i)+ ' '+str(j)+'.txt'][0].append(x)
-                keydict[str(i)+ ' '+str(j)+'.txt'][1].append(y)
+                keydict[str(i)+ ' '+str(round(j,2))+' '+str(round(anglesdict[i][j][0][0],2))+' ' +str(round(anglesdict[i][j][0][1],2))+' '+str(round(distdict[i][j][0][0],2))+' '+str(round(distdict[i][j][0][1],2))+'.txt'][0].append(x)
+                keydict[str(i)+ ' '+str(round(j,2))+' '+str(round(anglesdict[i][j][0][0],2))+' ' +str(round(anglesdict[i][j][0][1],2))+' '+str(round(distdict[i][j][0][0],2))+' '+str(round(distdict[i][j][0][1],2))+'.txt'][1].append(y)
+
+          
+            #str(i)+ ' '+str(round(j,2))+' '+str(round(anglesdict[i][j][0],2))+' ' +str(round(anglesdict[i][j][1],2))+' '+str(round(distdict[i][j][0],2))+' '+str(round(distdict[i][j][1],2))+'.txt'
+
     for key,val in keydict.items():                                                               #### create and save matrix
+        
         try:
-            mtx=np.histogram2d(val[0],val[1],bins=(180, 20),range=[[0,180],[0,10]])
+            mtx=np.histogram2d(val[0],val[1],bins=(90, 20),range=[[0,180],[0,10]])
     
             
         
