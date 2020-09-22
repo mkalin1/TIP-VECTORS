@@ -187,12 +187,19 @@ for i,k in enumerate(names[:2000]):
 
 
 
- 
-def hyd(nhyd,fdict2):                                              #hyd creates kmeans clusters from fdict and sorts the data into nested dictionary then returns it. newdict=dict with structure respair:centroids: ang/dist data
-    k=6                                                                 #### plot hydrophobicity to confirm # of kclusters                                                                                                                                                                        #centroids: ang/dist data
+
+
+    
+def hyd(nhyd,fdict2):                                              #hyd creates kmeans clusters from fdict and sorts the data into nested dictionary then returns it. newdict=dict with structure respair:centroids: ang/dist data                                                              #### plot hydrophobicity to confirm # of kclusters                                                                                                                                                                        #centroids: ang/dist data
     newdict=dict()
     newdict2=dict()
     for i in fdict2.keys():
+        if i=="TRP-TYR"  or i== "ARG-TYR"  or i== "ASN-PHE"  or i== "CYS-GLU"  or i== "TRP-TRP"  or i== "HIS-PHE"  or i== "ASN-HIS"  or i== "HIS-MET"  or i== "ILE-MET"  or i== "LEU-MET"  or i== "CYS-TRP"  or i== "ASN-CYS"  or i== "ASP-CYS"  or i== "ASN-MET"  or i== "MET-TRP"  or i== "MET-TYR"  or i== "ARG-MET"  or i== "ARG-PHE"  or i== "ARG-TRP"  or i== "ARG-SER"  or i== "ARG-CYS"  or i== "SER-TYR"  or i== "ARG-LEU"  or i== "MET-MET"  or i== "MET-SER"  or i== "MET-PRO"  or i== "CYS-LEU"  or i== "SER-TRP"  or i== "HIS-HIS"  or i== "THR-TYR"  or i== "ARG-ILE"  or i== "CYS-SER"  or i== "CYS-LYS"  or i== "ARG-HIS"  or i== "ARG-ARG"  or i== "ASN-TYR"  or i== "CYS-MET"  or i== "PHE-SER"  or i== "PHE-PHE"  or i== "PRO-TRP"  or i== "ASN-TRP"  or i== "CYS-ILE"  or i== "CYS-PHE"  or i== "CYS-HIS"  or i== "CYS-PRO":
+            k=1  
+        if i== "PHE-TYR"  or i== "PHE-VAL"  or i== "GLN-TRP"  or i== "PRO-VAL"  or i== "GLU-PRO"  or i== "LYS-TYR"  or i== "TYR-TYR"  or i== "MET-THR"  or i== "ASP-PRO"  or i== "GLU-TYR"  or i== "LYS-PHE"  or i== "TYR-VAL"  or i== "LYS-VAL"  or i== "CYS-TYR"  or i== "CYS-THR"  or i== "ASP-ILE"  or i== "CYS-VAL"  or i== "ASP-SER"  or i== "ARG-GLN"  or i== "PHE-THR"  or i== "ASP-PHE"  or i== "ASP-MET"  or i== "ASP-THR"  or i== "HIS-TRP"  or i== "MET-PHE"  or i== "GLU-SER"  or i== "GLN-PHE"  or i== "LYS-MET"  or i== "GLN-TYR"  or i== "ARG-ASN"  or i== "GLN-ILE"  or i== "GLN-GLN"  or i== "ARG-GLU"  or i== "ARG-ASP"  or i== "GLN-LEU"  or i== "GLN-GLU"  or i== "GLN-VAL"  or i== "GLU-LYS"  or i== "GLU-GLU"  or i== "GLN-MET"  or i== "ARG-THR"  or i== "GLN-HIS"  or i== "ARG-LYS"  or i== "GLN-LYS"  or i== "CYS-CYS"  or i== "ARG-VAL"  or i== "GLU-LEU"  or i== "ARG-PRO"  or i== "GLU-ILE"  or i== "GLU-HIS"  or i== "GLU-TRP"  or i== "HIS-LYS"  or i== "ASP-LEU"  or i== "PRO-THR"  or i== "HIS-TYR"  or i== "LYS-THR"  or i== "ASP-LYS"  or i== "ASN-GLU"  or i== "ASN-LYS"  or i== "ILE-ILE"  or i== "HIS-PRO"  or i== "LEU-LYS"  or i== "ASP-VAL"  or i== "SER-THR"  or i== "LEU-LEU"  or i== "HIS-THR"  or i== "HIS-SER"  or i== "LEU-PHE"  or i== "ILE-VAL"  or i== "GLU-VAL"  or i== "SER-SER"  or i== "LYS-SER"  or i== "ILE-THR"  or i== "LEU-THR"  or i== "ILE-PHE"  or i== "LEU-TYR"  or i== "LEU-VAL"  or i== "HIS-LEU"  or i== "LEU-TRP"  or i== "ILE-PRO"  or i== "ILE-SER"  or i== "ILE-TRP"  or i== "ILE-LYS"  or i== "HIS-ILE"  or i== "ILE-LEU"  or i== "LYS-LYS"  or i== "ILE-TYR"  or i== "LEU-SER"  or i== "ASN-GLN"  or i== "ASP-GLU"  or i== "PHE-TRP"  or i== "MET-VAL"  or i== "ASP-TRP"  or i== "THR-TRP"  or i== "THR-THR"  or i== "SER-VAL"  or i== "ASN-PRO"  or i== "ASN-ASP"  or i== "PHE-PRO"  or i== "THR-VAL"  or i== "TRP-VAL"  or i== "ASN-SER"  or i== "ASN-THR"  or i== "ASN-LEU"  or i== "ASP-ASP"  or i== "ASP-HIS"  or i== "ASN-VAL"  or i== "ASN-ILE"  or i== "VAL-VAL"  or i== "LEU-PRO"  or i== "ASN-ASN"  or i== "ASP-TYR"  or i== "HIS-VAL"  or i== "ASP-GLN":
+            k=2
+        if i== "GLN-THR"  or i== "GLN-SER"  or i== "GLU-PHE"  or i== "LYS-TRP"  or i== "GLN-PRO"  or i== "PRO-PRO"  or i== "GLU-MET"  or i== "PRO-TYR"  or i== "CYS-GLN"  or i== "LYS-PRO"  or i== "PRO-SER"  or i== "GLU-THR":
+            k=3
         newdict2[i]=defaultdict(list)
         newdict[i]=defaultdict(list)
         clusters, centroids = kmeans1d.cluster(nhyd[i], k)
@@ -211,6 +218,22 @@ def hyd(nhyd,fdict2):                                              #hyd creates 
             newdict[i][v].append(newdict2[i][b])
             
     return newdict
+
+'''
+def stats(fdict2):
+    for i in fdict2.keys():
+        angles=list()
+        distance=list()
+        for j in range(0,len(fdict2[i])):
+            distance.append(fdict2[i][j][1])
+            angles.append(fdict2[i][j][0])
+       
+        print("distance",i,np.var(distance),np.mean(distance))
+        print("angles",i,np.var(angles),np.mean(angles))
+'''
+        
+
+
 
 def writefile(fulldict):                                                                                    #writefile takes in dictionary from hyd and creates np angle/distance matrix file for each respair and centroid
     
