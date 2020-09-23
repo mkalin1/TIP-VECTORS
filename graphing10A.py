@@ -9,6 +9,7 @@ import math
 import glob
 import pandas as pd
 from matplotlib.ticker import FuncFormatter
+from sklearn.preprocessing import normalize
 
 
 files=glob.glob('*-*.txt')
@@ -20,7 +21,12 @@ for filename in files:
     distmean=filename.split(' ')[4]
     distvar=filename.split(' ')[5]
 
-    df=pd.DataFrame(data=full,index=np.array(range(0,90)),columns=np.array(range(0,20)))
+
+    n=np.max(full)
+    new=full/n
+    #print(new)
+    print(np.max(new))
+    df=pd.DataFrame(data=new,index=np.array(range(0,90)),columns=np.array(range(0,20)))
     counts=np.sum(full)
     
     dft=df.transpose()         
@@ -36,9 +42,9 @@ for filename in files:
     resplot=sns.heatmap(dft,yticklabels=ylist)
     xlist=map(int,resplot.get_xticks()*2)
     
-    print(xlist)
+    #print(xlist)
     resplot.set(xticklabels=xlist)
-    resplot.set(xlabel="Angle (°), "+"Mean: "+anglemean+" Var: "+anglevar,ylabel="Distance (Å), "+"Mean: "+distmean+" Var: "+distvar,title="Total: "+str(counts)+" Hydrophobicity: "+hyd) 
+    resplot.set(xlabel="Angle (°), "+"Mean: "+anglemean+" Var: "+anglevar,ylabel="Distance (Å), "+"Mean: "+distmean+" Var: "+distvar,title="Total Cases: "+str(counts)+" Hydrophobicity: "+hyd) 
           
     plt.savefig(filename[:-27]+'.png',format='PNG') 
     plt.close()
