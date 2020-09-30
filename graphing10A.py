@@ -15,19 +15,21 @@ from sklearn.preprocessing import normalize
 files=glob.glob('*-*.txt')
 for filename in files:
     full = np.loadtxt(filename)
-    hyd=filename.split(' ')[1]
-    anglemean=filename.split(' ')[2]
-    anglevar=filename.split(' ')[3]
-    distmean=filename.split(' ')[4]
-    distvar=filename.split(' ')[5]
+    hyd=filename.split(' ')[2]
+    anglemean=filename.split(' ')[3]
+    anglevar=filename.split(' ')[4]
+    distmean=filename.split(' ')[5]
+    distvar=filename[:-4].split(' ')[6]
 
 
-    n=np.max(full)
-    new=full/n
-    #print(new)
-    print(np.max(new))
-    df=pd.DataFrame(data=new,index=np.array(range(0,90)),columns=np.array(range(0,20)))
     counts=np.sum(full)
+    new=full/counts
+    
+    print(np.sum(new))
+    #print(new)
+    
+    df=pd.DataFrame(data=new,index=np.array(range(0,90)),columns=np.array(range(0,20)))
+    
     
     dft=df.transpose()         
     ylist=list()
@@ -46,5 +48,5 @@ for filename in files:
     resplot.set(xticklabels=xlist)
     resplot.set(xlabel="Angle (°), "+"Mean: "+anglemean+" Var: "+anglevar,ylabel="Distance (Å), "+"Mean: "+distmean+" Var: "+distvar,title="Total Cases: "+str(counts)+" Hydrophobicity: "+hyd) 
           
-    plt.savefig(filename[:-27]+'.png',format='PNG') 
+    plt.savefig(filename[:-30]+'.png',format='PNG') 
     plt.close()
