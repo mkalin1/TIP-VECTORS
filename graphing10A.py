@@ -25,13 +25,16 @@ for filename in files:
     counts=np.sum(full)
     new=full/counts
     
-    print(np.sum(new))
+    #print(np.sum(new))
     #print(new)
+    #xmax,xmin=full.max(),full.min()
+    #full=(full-xmin)/(xmax-xmin)
     
     df=pd.DataFrame(data=new,index=np.array(range(0,90)),columns=np.array(range(0,20)))
     
     
-    dft=df.transpose()         
+    dft=df.transpose()       
+    
     ylist=list()
     xlist=list()
     for i in range(0,20):
@@ -48,5 +51,5 @@ for filename in files:
     resplot.set(xticklabels=xlist)
     resplot.set(xlabel="Angle (°), "+"Mean: "+anglemean+" Var: "+anglevar,ylabel="Distance (Å), "+"Mean: "+distmean+" Var: "+distvar,title="Total Cases: "+str(counts)+" Hydrophobicity: "+hyd) 
           
-    plt.savefig(filename[:-30]+'.png',format='PNG') 
+    plt.savefig(filename[:-37]+'.png',format='PNG') 
     plt.close()

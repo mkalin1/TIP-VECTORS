@@ -159,7 +159,7 @@ def pull_clusters(filename, cutoff_val, chain_id,fdict2,nhyd):
 
 
 
-with open('newnewnamestring.txt', 'r') as f:              #txt of all pdb file names to download
+with open('namestringentrycull.txt', 'r') as f:              #txt of all pdb file names to download
     namestring=f.read().split(",")
     
 
@@ -174,7 +174,7 @@ fdict2={'ARG-ARG':list(), 'ARG-ASN':list(), 'ARG-ASP':list(), 'ARG-CYS':list(), 
 
 nhyd=dict()
 
-for i,k in enumerate(names[:3000]):
+for i,k in enumerate(names[:5400]):
 
     print(i)
     #out,fdict2,nhyd = pull_clusters(k+'.pdb', 10.0, "A",fdict2,nhyd)
