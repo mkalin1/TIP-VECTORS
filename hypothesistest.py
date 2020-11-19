@@ -12,6 +12,7 @@ from matplotlib.ticker import FuncFormatter
 from sklearn.preprocessing import normalize
 import scipy
 
+
 #_, p_b = scipy.stats.ttest_ind(df_a.dropna(axis=0), df_b.dropna(axis=0))
 #_, p_c = scipy.stats.ttest_ind(df_a.dropna(axis=0), df_c.dropna(axis=0))
 #pd.DataFrame([p_b, p_c], columns = df_a.columns, index = ['df_b', 'df_c'])
@@ -24,7 +25,10 @@ names=[]
 for filename in files:
     names.append(filename)
 
+sqmat=[]
+
 for i in names:
+    print(i.split(" ")[0])
     df_1 = np.loadtxt(i)
     hyd=filename.split(' ')[2]
     anglemean=filename.split(' ')[3]
@@ -33,7 +37,9 @@ for i in names:
     distvar=filename[:-4].split(' ')[6]
     counts=np.sum(df_1)
     new=df_1/counts
+
     for j in names:
+        print(j.split(" ")[0])
         df_2 = np.loadtxt(j)
         hyd1=filename.split(' ')[2]
         anglemean1=filename.split(' ')[3]
@@ -42,5 +48,9 @@ for i in names:
         distvar1=filename[:-4].split(' ')[6]
         counts1=np.sum(df_2)
         new1=df_2/counts
-        t,p=scipy.stats.ttest_ind(new,new1,equal_var=False)
-        print(t)
+        distance=math.sqrt(np.sum((new-new1)**2))
+        print(distance)
+        
+        
+
+

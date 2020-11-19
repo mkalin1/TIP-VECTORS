@@ -50,6 +50,6 @@ for filename in files:
     #print(xlist)
     resplot.set(xticklabels=xlist)
     resplot.set(xlabel="Angle (°), "+"Mean: "+anglemean+" Var: "+anglevar,ylabel="Distance (Å), "+"Mean: "+distmean+" Var: "+distvar,title="Total Cases: "+str(counts)+" Hydrophobicity: "+hyd) 
-          
-    plt.savefig(filename[:-37]+'.png',format='PNG') 
+    resname=filename.split(" ")[0]
+    plt.savefig(resname+'.png',format='PNG') 
     plt.close()

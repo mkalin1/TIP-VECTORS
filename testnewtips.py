@@ -175,7 +175,7 @@ fdict2={'ARG-ARG':list(), 'ARG-ASN':list(), 'ARG-ASP':list(), 'ARG-CYS':list(), 
 
 nhyd=dict()
 counter=0
-for i,k in enumerate(names[:4000]):
+for i,k in enumerate(names[:4400]):
 
     #print(i)
     #out,fdict2,nhyd = pull_clusters(k+'.pdb', 10.0, "A",fdict2,nhyd)
