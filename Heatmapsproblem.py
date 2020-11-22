@@ -1,3 +1,4 @@
+    
 from packman import molecule
 from scipy.spatial.distance import pdist, squareform
 import numpy as np
@@ -35,22 +36,32 @@ for filename in files:
     
     dft=df.transpose()       
     
-    ylist=list()
-    xlist=list() 
+    #ylist=list()
+    #xlist=list() 
+    '''
     for i in range(0,20):
         if i==0:
             ylist.append(i)
         if i>0:
-            ylist.append(i/2)
+            ylist.append(i/2)'''
+    
+    
+    #resplot=sns.heatmap(dft,yticklabels=ylist)
+    #xlist=map(int,resplot.get_xticks()*2)
     
     fig, ax = plt.subplots()
     
-    resplot=sns.heatmap(dft,yticklabels=ylist)
-    xlist=map(int,resplot.get_xticks()*2)
-
+    im = ax.imshow(new)
+    plt.colorbar(mi)
+    #plt.show()
     #print(xlist)
-    resplot.set(xticklabels=xlist)
-    resplot.set(xlabel="Angle (°), "+"Mean: "+anglemean+" Var: "+anglevar,ylabel="Distance (Å), "+"Mean: "+distmean+" Var: "+distvar,title="Total Cases: "+str(counts)+" Hydrophobicity: "+hyd) 
+    #resplot.set(xticklabels=xlist)
+    #resplot.set(xlabel="Angle (°), "+"Mean: "+anglemean+" Var: "+anglevar,ylabel="Distance (Å), "+"Mean: "+distmean+" Var: "+distvar,title="Total Cases: "+str(counts)+" Hydrophobicity: "+hyd) 
     resname=filename.split(" ")[0]+" "+filename.split(" ")[1]
     plt.savefig(resname+'.png',format='PNG') 
     plt.close()
+
+    
+    
+    
+    
