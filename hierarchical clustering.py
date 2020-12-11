@@ -11,7 +11,11 @@ import pandas as pd
 from matplotlib.ticker import FuncFormatter
 from sklearn.preprocessing import normalize
 import scipy
-
+from collections import defaultdict
+from scipy.cluster.hierarchy import linkage, dendrogram
+from matplotlib.colors import rgb2hex, colorConverter
+from scipy.cluster.hierarchy import set_link_color_palette
+import scipy.cluster.hierarchy as sch
 
 #_, p_b = scipy.stats.ttest_ind(df_a.dropna(axis=0), df_b.dropna(axis=0))
 #_, p_c = scipy.stats.ttest_ind(df_a.dropna(axis=0), df_c.dropna(axis=0))
@@ -28,7 +32,7 @@ names=[]
 
 
 #df = pd.DataFrame(columns=nameslist, index=nameslist)
-df = pd.DataFrame(columns=nameslist, index=nameslist)
+#df = pd.DataFrame(columns=nameslist, index=nameslist)
 #print(df)
 
 
@@ -36,13 +40,14 @@ for filename in files:
     names.append(filename)
 #print(names)
 sqmat=[]
-
+'''
 for i in names:
     
     matrixA=i.split(" ")[0]+' '+i.split(" ")[1]
     df1 = np.loadtxt(i)
-    counts1=np.sum(df1)
+    counts1=np.max(df1)
     new1=df1/counts1
+    #print(new1)
     for j in names:
         
         matrixB=j.split(" ")[0]+' '+j.split(" ")[1]
@@ -52,8 +57,27 @@ for i in names:
         new2=df2/counts2
         distance=math.sqrt(np.sum((new1-new2)**2))
         df.at[matrixA,matrixB]=distance
-        
-df.to_csv('distancematrix.csv',index = True)
+'''
+df=pd.read_csv('distancematrix.csv',index_col=[0])
+
+df.head(1)
+'''
+dendrogram = sch.dendrogram(sch.linkage(df, method  = "ward"))
+plt.title('Dendrogram')
+plt.xlabel('Customers')
+plt.ylabel('Euclidean distances')
+plt.show()
+'''
+#c_dist = pdist(df) # computing the distance
+
+#c_link = linkage(df,  metric='correlation', method='complete')# computing the linkage
+c_link=sch.linkage(df,method='ward', metric='euclidean', optimal_ordering=True)
+B=dendrogram(c_link,labels=list(df.columns))
+
+
+plt.show()
+
+#df.to_csv('distancematrix.csv',index = True)
         
         
 
