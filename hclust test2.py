@@ -72,11 +72,75 @@ plt.show()
 
 #c_link = linkage(df,  metric='correlation', method='complete')# computing the linkage
 c_link=sch.linkage(df,method='ward', metric='euclidean', optimal_ordering=True)
-B=dendrogram(c_link,labels=list(df.columns))
+#B=dendrogram(c_link,labels=list(df.columns))
 
 
+
+class Clusters(dict):
+    def _repr_html_(self):
+        html = '<table style="border: 0;">'
+        for c in self:
+            hx = rgb2hex(colorConverter.to_rgb(c))
+            html += '<tr style="border: 0;">' \
+            '<td style="background-color: {0}; ' \
+                       'border: 0;">' \
+            '<code style="background-color: {0};">'.format(hx)
+            html += c + '</code></td>'
+            html += '<td style="border: 0"><code>' 
+            html += repr(self[c]) + '</code>'
+            html += '</td></tr>'
+
+        html += '</table>'
+
+        return html
+def get_cluster_classes(den, label='ivl'):
+    cluster_idxs = defaultdict(list)
+    for c, pi in zip(den['color_list'], den['icoord']):
+        for leg in pi[1:3]:
+            i = (leg - 5.0) / 10.0
+            if abs(i - int(i)) < 1e-5:
+                cluster_idxs[c].append(int(i))
+    
+    cluster_classes = Clusters()
+    for c, l in cluster_idxs.items():
+        i_l = [den[label][i] for i in l]
+        cluster_classes[c] = i_l
+    
+    return cluster_classes
+
+def get_clust_graph(df, numclust, dataname=None, save=False, xticksize=8):
+    
+    aml=df
+
+    data_link = linkage(df,  metric='euclidean', method='ward') 
+    z=sch.leaves_list(data_link)
+    B=dendrogram(data_link,labels=list(aml.columns),p=numclust, truncate_mode="lastp",get_leaves=True, count_sort='ascending', show_contracted=True)
+    
+    get_cluster_classes(B)
+    ax=plt.gca()
+    ax.tick_params(axis='x', which='major', labelsize=xticksize)
+    ax.tick_params(axis='y', which='major', labelsize=15)
+    
+    plt.ylabel('Distance')
+    if save:
+        plt.savefig(str(df.index.name)+str(numclust)+"tr_"+"dn_"+str(dataname)+save+'.png')
+    else:
+        print("Not saving")
+    return get_cluster_classes(B)
+
+def give_cluster_assigns(df, numclust):
+
+    #data_dist = pdist(df)
+    data_link = linkage(df,  metric='euclidean', method='ward')
+    
+    cluster_assigns=pd.Series(sch.fcluster(data_link, numclust, criterion='maxclust', monocrit=None), index=df.index)
+    
+    for i in range(1,numclust+1):
+        print("Cluster ",str(i),": ( N =",len(cluster_assigns[cluster_assigns==i].index),")", ", ".join(list(cluster_assigns[cluster_assigns==i].index)))
+    
+get_clust_graph(df, 14, dataname="Residue Pairs", xticksize=9)
+give_cluster_assigns(df,14)
 plt.show()
-
 #df.to_csv('distancematrix.csv',index = True)
         
         

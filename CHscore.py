@@ -16,6 +16,7 @@ from scipy.cluster.hierarchy import linkage, dendrogram
 from matplotlib.colors import rgb2hex, colorConverter
 from scipy.cluster.hierarchy import set_link_color_palette
 import scipy.cluster.hierarchy as sch
+import sklearn
 
 #_, p_b = scipy.stats.ttest_ind(df_a.dropna(axis=0), df_b.dropna(axis=0))
 #_, p_c = scipy.stats.ttest_ind(df_a.dropna(axis=0), df_c.dropna(axis=0))
@@ -41,44 +42,24 @@ for filename in files:
 #print(names)
 sqmat=[]
 '''
-for i in names:
-    
-    matrixA=i.split(" ")[0]+' '+i.split(" ")[1]
-    df1 = np.loadtxt(i)
-    counts1=np.max(df1)
-    new1=df1/counts1
-    #print(new1)
-    for j in names:
-        
-        matrixB=j.split(" ")[0]+' '+j.split(" ")[1]
-        
-        df2 = np.loadtxt(j)
-        counts2=np.sum(df2)
-        new2=df2/counts2
-        distance=math.sqrt(np.sum((new1-new2)**2))
-        df.at[matrixA,matrixB]=distance
+
 '''
 df=pd.read_csv('distancematrixMAX.csv',index_col=[0])
 
-df.head(1)
+
+
+df1=np.triu(df)                               # upper triangular
+
+
 '''
-dendrogram = sch.dendrogram(sch.linkage(df, method  = "ward"))
-plt.title('Dendrogram')
-plt.xlabel('Customers')
-plt.ylabel('Euclidean distances')
-plt.show()
+for i in range(2,30):
+    A=sklearn.cluster.AgglomerativeClustering(n_clusters=i, affinity='euclidean', memory=None, connectivity=None, compute_full_tree='auto', linkage='ward', distance_threshold=None).fit_predict(df1)
+    chscore=sklearn.metrics.calinski_harabasz_score(df, A)
+
+    print(i,chscore)
 '''
-#c_dist = pdist(df) # computing the distance
-
-#c_link = linkage(df,  metric='correlation', method='complete')# computing the linkage
-c_link=sch.linkage(df,method='ward', metric='euclidean', optimal_ordering=True)
-B=dendrogram(c_link,labels=list(df.columns))
-
-
-plt.show()
-
-#df.to_csv('distancematrix.csv',index = True)
-        
-        
+A=sklearn.cluster.AgglomerativeClustering(n_clusters=14, affinity='euclidean', memory=None, connectivity=None, compute_full_tree='auto', linkage='ward', distance_threshold=None).fit_predict(df)
+#chscore=sklearn.metrics.calinski_harabasz_score(df, A)
+print(A)
 
 

@@ -68,7 +68,7 @@ for i in names:
         distance=math.sqrt(np.sum((new1-new2)**2))
         df.at[matrixA,matrixB]=distance
 '''
-df=pd.read_csv('distancematrix.csv',index_col=[0])
+df=pd.read_csv('distancematrixMAX.csv',index_col=[0])
 
 df.head(1)
 '''
@@ -129,7 +129,7 @@ def get_clust_graph(df, numclust, transpose=False, dataname=None, save=False, xt
         aml=df
         xl="y-axis"
     data_dist = pdist(aml.transpose()) # computing the distance
-    data_link = linkage(data_dist,  metric='correlation', method='complete')#method="complete") # computing the linkage
+    data_link = linkage(data_dist,  metric='euclidean', method='ward')#method="complete") # computing the linkage
     B=dendrogram(data_link,labels=list(aml.columns),p=numclust, truncate_mode="lastp",get_leaves=True, count_sort='ascending', show_contracted=True)
     #myInd = [i for i, c in zip(B['ivl'], B['color_list']) if c=='g']
     get_cluster_classes(B)
@@ -146,29 +146,19 @@ def get_clust_graph(df, numclust, transpose=False, dataname=None, save=False, xt
         print("Not saving")
     return get_cluster_classes(B)
     
+
 def give_cluster_assigns(df, numclust, transpose=True):
     if transpose==True:
         data_dist = pdist(df.transpose())
-        data_link = linkage(data_dist,  metric='correlation', method='complete')
+        data_link = linkage(data_dist,  metric='euclidean', method='ward')
         cluster_assigns=pd.Series(sch.fcluster(data_link, numclust, criterion='maxclust', monocrit=None), index=df.columns)
     else:
         data_dist = pdist(df)
-        data_link = linkage(data_dist,  metric='correlation', method='complete')
-        cluster_assigns=pd.Series(sch.fcluster(data_link, numclust, criterion='maxclust', monocrit=None), index=df.index)
-    for i in range(1,numclust+1):
-        print("Cluster ",str(i),": ( N =",len(cluster_assigns[cluster_assigns==i].index),")", ", ".join(list(cluster_assigns[cluster_assigns==i].index)))
-def give_cluster_assigns(df, numclust, transpose=True):
-    if transpose==True:
-        data_dist = pdist(df.transpose())
-        data_link = linkage(data_dist,  metric='correlation', method='complete')
-        cluster_assigns=pd.Series(sch.fcluster(data_link, numclust, criterion='maxclust', monocrit=None), index=df.columns)
-    else:
-        data_dist = pdist(df)
-        data_link = linkage(data_dist,  metric='correlation', method='complete')
+        data_link = linkage(data_dist,  metric='euclidean', method='ward')
         cluster_assigns=pd.Series(sch.fcluster(data_link, numclust, criterion='maxclust', monocrit=None), index=df.index)
     for i in range(1,numclust+1):
         print("Cluster ",str(i),": ( N =",len(cluster_assigns[cluster_assigns==i].index),")", ", ".join(list(cluster_assigns[cluster_assigns==i].index)))
     
-get_clust_graph(df, 20, transpose=True,dataname="Residue Pairs", save="HIERARCHICAL CLUSTERING", xticksize=9)
-give_cluster_assigns(df,20,transpose=True)
+get_clust_graph(df, 25, transpose=True,dataname="Residue Pairs", save="hclust", xticksize=9)
+give_cluster_assigns(df,25,transpose=True)
 plt.show()
