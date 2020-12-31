@@ -58,7 +58,7 @@ for i in names:
         distance=math.sqrt(np.sum((new1-new2)**2))
         df.at[matrixA,matrixB]=distance
 '''
-df=pd.read_csv('distancematrixMAX.csv',index_col=[0])
+df=pd.read_csv('distancematrix.csv',index_col=[0])
 
 df.head(1)
 '''
@@ -138,8 +138,8 @@ def give_cluster_assigns(df, numclust):
     for i in range(1,numclust+1):
         print("Cluster ",str(i),": ( N =",len(cluster_assigns[cluster_assigns==i].index),")", ", ".join(list(cluster_assigns[cluster_assigns==i].index)))
     
-get_clust_graph(df, 14, dataname="Residue Pairs", xticksize=9)
-give_cluster_assigns(df,14)
+get_clust_graph(df, 17, dataname="Residue Pairs", xticksize=9)
+give_cluster_assigns(df,17)
 plt.show()
 #df.to_csv('distancematrix.csv',index = True)
         
