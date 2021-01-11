@@ -16,6 +16,7 @@ from scipy.cluster.hierarchy import linkage, dendrogram
 from matplotlib.colors import rgb2hex, colorConverter
 from scipy.cluster.hierarchy import set_link_color_palette
 import scipy.cluster.hierarchy as sch
+import sklearn
 
 #_, p_b = scipy.stats.ttest_ind(df_a.dropna(axis=0), df_b.dropna(axis=0))
 #_, p_c = scipy.stats.ttest_ind(df_a.dropna(axis=0), df_c.dropna(axis=0))
@@ -41,108 +42,67 @@ for filename in files:
 #print(names)
 sqmat=[]
 '''
-for i in names:
-    
-    matrixA=i.split(" ")[0]+' '+i.split(" ")[1]
-    df1 = np.loadtxt(i)
-    counts1=np.max(df1)
-    new1=df1/counts1
-    #print(new1)
-    for j in names:
-        
-        matrixB=j.split(" ")[0]+' '+j.split(" ")[1]
-        
-        df2 = np.loadtxt(j)
-        counts2=np.sum(df2)
-        new2=df2/counts2
-        distance=math.sqrt(np.sum((new1-new2)**2))
-        df.at[matrixA,matrixB]=distance
+
 '''
 df=pd.read_csv('distancematrixMAX.csv',index_col=[0])
 
-df.head(1)
+
+
+df1=np.triu(df)                               # upper triangular
+
+
 '''
-dendrogram = sch.dendrogram(sch.linkage(df, method  = "ward"))
-plt.title('Dendrogram')
-plt.xlabel('Customers')
-plt.ylabel('Euclidean distances')
-plt.show()
+for i in range(2,30):
+    A=sklearn.cluster.AgglomerativeClustering(n_clusters=i, affinity='euclidean', memory=None, connectivity=None, compute_full_tree='auto', linkage='ward', distance_threshold=None).fit_predict(df1)
+    chscore=sklearn.metrics.calinski_harabasz_score(df, A)
+
+    print(i,chscore)
 '''
-#c_dist = pdist(df) # computing the distance
-
-#c_link = linkage(df,  metric='correlation', method='complete')# computing the linkage
-c_link=sch.linkage(df,method='ward', metric='euclidean', optimal_ordering=True)
-#B=dendrogram(c_link,labels=list(df.columns))
+#A=sklearn.cluster.AgglomerativeClustering(n_clusters=14, affinity='euclidean', memory=None, connectivity=None, compute_full_tree='auto', linkage='ward', distance_threshold=None).fit_predict(df)
+#chscore=sklearn.metrics.calinski_harabasz_score(df, A)
 
 
+#print(A)
 
-class Clusters(dict):
-    def _repr_html_(self):
-        html = '<table style="border: 0;">'
-        for c in self:
-            hx = rgb2hex(colorConverter.to_rgb(c))
-            html += '<tr style="border: 0;">' \
-            '<td style="background-color: {0}; ' \
-                       'border: 0;">' \
-            '<code style="background-color: {0};">'.format(hx)
-            html += c + '</code></td>'
-            html += '<td style="border: 0"><code>' 
-            html += repr(self[c]) + '</code>'
-            html += '</td></tr>'
 
-        html += '</table>'
 
-        return html
-def get_cluster_classes(den, label='ivl'):
-    cluster_idxs = defaultdict(list)
-    for c, pi in zip(den['color_list'], den['icoord']):
-        for leg in pi[1:3]:
-            i = (leg - 5.0) / 10.0
-            if abs(i - int(i)) < 1e-5:
-                cluster_idxs[c].append(int(i))
+df=(df.assign(sum=df.sum(axis=0)).sort_values(by='sum', ascending=False).iloc[:, :-1])
+#print(df)
+fuck=[]
+x=-1
+z={}
+for i in df.index:
+    x=x+1
+    y=-1
+    for j in df.columns:
+        y=y+1
+        if df[i][j]==0:
+            z[y]=j
+z1=[]
+for k,numk in enumerate(z.items()):
+    #print(k,numk[0],numk[1])
+    z1.append(numk[0])
+#print(z1)
+df2=df[df.columns[[z1]]]
+#for i in z1.values():
+    #newdf.append(df[i],ignore_index=True)
+df2.to_csv('AA.csv',index = True)
+
+            #continue
+
+#print(df.iloc[0][0])
+
+#df=(df.iloc[169][150]).reindex
+
+
+
+
+#for i in df.index:
     
-    cluster_classes = Clusters()
-    for c, l in cluster_idxs.items():
-        i_l = [den[label][i] for i in l]
-        cluster_classes[c] = i_l
-    
-    return cluster_classes
-
-def get_clust_graph(df, numclust, dataname=None, save=False, xticksize=8):
-    
-    aml=df
-
-    data_link = linkage(df,  metric='euclidean', method='ward') 
-    z=sch.leaves_list(data_link)
-    B=dendrogram(data_link,labels=list(aml.columns),p=numclust, truncate_mode="lastp",get_leaves=True, count_sort='ascending', show_contracted=True)
-    
-    get_cluster_classes(B)
-    ax=plt.gca()
-    ax.tick_params(axis='x', which='major', labelsize=xticksize)
-    ax.tick_params(axis='y', which='major', labelsize=15)
-    
-    plt.ylabel('Distance')
-    if save:
-        plt.savefig(str(df.index.name)+str(numclust)+"tr_"+"dn_"+str(dataname)+save+'.png')
-    else:
-        print("Not saving")
-    return get_cluster_classes(B)
-
-def give_cluster_assigns(df, numclust):
-
-    #data_dist = pdist(df)
-    data_link = linkage(df,  metric='euclidean', method='ward')
-    
-    cluster_assigns=pd.Series(sch.fcluster(data_link, numclust, criterion='maxclust', monocrit=None), index=df.index)
-    
-    for i in range(1,numclust+1):
-        print("Cluster ",str(i),": ( N =",len(cluster_assigns[cluster_assigns==i].index),")", ", ".join(list(cluster_assigns[cluster_assigns==i].index)))
-    
-get_clust_graph(df, 14, dataname="Residue Pairs", xticksize=9)
-give_cluster_assigns(df,14)
-plt.show()
-#df.to_csv('distancematrix.csv',index = True)
-        
-        
+    #print(df.loc[df[i]==0])
 
 
+#data = df.sort_values(by=list(df.index),axis=1)
+
+#fuck.to_csv('AAA.csv',index = True)
+#np.savetxt('wtf',fuck,fmt='%f')

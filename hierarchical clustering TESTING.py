@@ -159,6 +159,6 @@ def give_cluster_assigns(df, numclust, transpose=True):
     for i in range(1,numclust+1):
         print("Cluster ",str(i),": ( N =",len(cluster_assigns[cluster_assigns==i].index),")", ", ".join(list(cluster_assigns[cluster_assigns==i].index)))
     
-get_clust_graph(df, 25, transpose=True,dataname="Residue Pairs", save="hclust", xticksize=9)
-give_cluster_assigns(df,25,transpose=True)
+get_clust_graph(df, 14, transpose=True,dataname="Residue Pairs", save="hclust", xticksize=9)
+give_cluster_assigns(df,14,transpose=True)
 plt.show()
