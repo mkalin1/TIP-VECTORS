@@ -77,25 +77,34 @@ for i in df.index:
     for j in df.columns:
         y=y+1
         if df[i][j]==0:
+            
             z[y]=j
+
 z1=[]
+
 for k,numk in enumerate(z.items()):
     #print(k,numk[0],numk[1])
     z1.append(numk[0])
-#print(z1)
+
+
 df2=df[df.columns[[z1]]]
+#print(df2)
+#print(df2)
 #for i in z1.values():
     #newdf.append(df[i],ignore_index=True)
-df2.to_csv('AA.csv',index = True)
+#df2.to_csv('AA.csv',index = True)
 
             #continue
 
 #print(df.iloc[0][0])
 
 #df=(df.iloc[169][150]).reindex
-
-
-
+for i in df2.index:
+    for j in df2.columns:
+        if df2[i][j]==0:
+            df2[i][j]=df2[i].sum()
+            
+df2.to_csv('A.csv',index = True)
 
 #for i in df.index:
     

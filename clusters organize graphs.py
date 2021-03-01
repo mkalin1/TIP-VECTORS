@@ -140,12 +140,51 @@ def give_cluster_assigns(df, numclust):
     for i in range(1,numclust+1):
         #print("Cluster ",str(i),": ( N =",len(cluster_assigns[cluster_assigns==i].index),")", ", ".join(list(cluster_assigns[cluster_assigns==i].index)))
         try:
-            cdict[i]=", ".join(list(cluster_assigns[cluster_assigns==i].index))
+            cdict[i]=list(cluster_assigns[cluster_assigns==i].index)
         except:
             cdict[i]=list()
-            cdict[i]=", ".join(list(cluster_assigns[cluster_assigns==i].index))
+            cdict[i]=list(cluster_assigns[cluster_assigns==i].index)
+    
     for i in cdict.keys():
-        print(cdict[i])
+        for j,numj in enumerate(cdict[i]):
+            #print(cdict[i][j])
+            print(i,numj)
+            for file in glob.glob(cdict[i][j]+'*.txt'):
+                print(file)
+                full = np.loadtxt(file)
+            
+                counts=np.sum(full)
+                new=full/counts
+                
+                #print(np.sum(new))
+                #print(new)
+                #xmax,xmin=full.max(),full.min()
+                #full=(full-xmin)/(xmax-xmin)
+                
+                df=pd.DataFrame(data=new,index=np.array(range(0,90)),columns=np.array(range(0,20)))
+                
+                
+                dft=df.transpose()       
+                
+                ylist=list()
+                xlist=list() 
+                for k in range(0,20):
+                    if i==0:
+                        ylist.append(k)
+                    if i>0:
+                        ylist.append(k/2)
+                
+                
+                
+                resplot=sns.heatmap(dft,yticklabels=ylist)
+                xlist=map(int,resplot.get_xticks()*2)
+
+                #print(xlist)
+                resplot.set(xticklabels=xlist)
+                resplot.set(xlabel="Angle (°)",ylabel="Distance (Å)",title="Total Cases: "+str(counts)) 
+                resname=str(numj)
+                plt.savefig(str(i)+' '+resname+'.png',format='PNG') 
+                plt.close()
 
 get_clust_graph(df, 14, dataname="Residue Pairs", xticksize=9)
 give_cluster_assigns(df,14)
