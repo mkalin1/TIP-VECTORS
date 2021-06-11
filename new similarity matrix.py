@@ -42,7 +42,7 @@ ddict=dict()
 for i in names:
     
     matrixA=i.split(" ")[0]
-    df1 = np.loadtxt(i)
+    df1 = np.loadtxt(i)[:, 20:180]
     counts1=np.sum(df1)
     
     new1=(df1/counts1)
@@ -54,23 +54,23 @@ for i in names:
         
         matrixB=j.split(" ")[0]
         
-        df2 = np.loadtxt(j)
+        df2 = np.loadtxt(j)[:, 20:180]
         counts2=np.sum(df2)
         new2=(df2/counts2)
-        distance=1-np.sum(np.sqrt((new1-new2)**2))
+        distance=np.sqrt(np.sum((new1-new2)**2))                           #old similarity matrix 
        
 
         #distance=np.sqrt((new1-new2)**2)
         
-        #distance=math.sqrt(np.sum((new1-new2)**2))
+        #distance=math.sqrt(np.sum((new1-new2)**2))             
         
-        #distance=np.corrcoef(new1.ravel(), new2.ravel())
+        #distance=np.corrcoef(new1.ravel(), new2.ravel())                   #new matrix (correlation matrix)
         #distance=distance[0][1]
         #fuck=scipy.signal.fftconvolve(new1,new2[::-1, ::-1])
         #print(fuck)
         df.at[matrixA,matrixB]=distance
 
-df.to_csv('fixed_original_2.csv',index = True)
+df.to_csv('trunc 40.csv',index = True)
         
 
 

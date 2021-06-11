@@ -59,7 +59,7 @@ for i in names:
         distance=math.sqrt(np.sum((new1-new2)**2))
         df.at[matrixA,matrixB]=distance
 '''
-df=pd.read_csv('corrmat_2.csv',index_col=[0])
+df=pd.read_csv('trunc 40 corrmat.csv',index_col=[0])
 
 df.head(1)
 '''
@@ -149,8 +149,8 @@ def give_cluster_assigns(df, numclust,newdict):
         newdict[i]=cdict[i].split(', ')
     return(newdict)
 
-get_clust_graph(df, 17, dataname="Residue Pairs", xticksize=9)
-give_cluster_assigns(df,17,newdict)
+get_clust_graph(df, 23, dataname="Residue Pairs", xticksize=9)
+give_cluster_assigns(df,23,newdict)
 print(newdict)
 
 try:
@@ -160,12 +160,12 @@ except:
     pass
 files1=glob.glob('*-*.txt')
 for filename in files1:
-    full = np.loadtxt(filename)[:, 2:18]                                                        #load range of values from np matrix
+    full = np.loadtxt(filename)[:, 20:180]                                                                                      #trimmed matrices
     resname=filename.split(" ")[0]
     for key in newdict.keys():
         for value in newdict[key]:
             if value in resname:
-                save_results_to = "/Users/Michael/Desktop/graph stuff/prontoCOMBINEDGRAPHS/"+str(key)+'/'+str(resname)+'.png'
+                save_results_to = "/Users/Michael/Desktop/graph stuff/manybins/trunc 40/"+str(key)+'/'+str(resname)+'.png'            ## change this path pls
                 #print(save_results_to)
                 #print(key,value,resname)
                 counts=np.sum(full)
@@ -180,23 +180,23 @@ for filename in files1:
     #xmax,xmin=full.max(),full.min()
     #full=(full-xmin)/(xmax-xmin)
     
-                df=pd.DataFrame(data=new,index=np.array(range(0,90)),columns=np.array(range(0,20)))
+                df=pd.DataFrame(data=new,index=np.array(range(0,360)),columns=np.array(range(0,160)))
     
     
                 dft=df.transpose()       
                 
                 ylist=list()
                 xlist=list() 
-                for i in range(0,20):
+                for i in range(20,180):
                     if i==0:
                         ylist.append(i)
                     if i>0:
-                        ylist.append(i/2)
+                        ylist.append(i/20)
                 
                 fig, ax = plt.subplots()
                 
                 resplot=sns.heatmap(dft,yticklabels=ylist)
-                xlist=map(int,resplot.get_xticks()*2)
+                ax.locator_params(nbins=8, axis='y')
 
                 #print(xlist)
                 resplot.set(xticklabels=xlist)

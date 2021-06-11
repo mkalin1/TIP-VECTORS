@@ -14,7 +14,7 @@ from sklearn.preprocessing import normalize
 
 files=glob.glob('*-*.txt')
 for filename in files:
-    full = np.loadtxt(filename)[:, 20:200]
+    full = np.loadtxt(filename)[:, 20:180]
    
     counts=np.sum(full)
     new=full/counts
@@ -24,14 +24,14 @@ for filename in files:
     #xmax,xmin=full.max(),full.min()
     #full=(full-xmin)/(xmax-xmin)
     
-    df=pd.DataFrame(data=new,index=np.array(range(0,360)),columns=np.array(range(0,180)))
+    df=pd.DataFrame(data=new,index=np.array(range(0,360)),columns=np.array(range(0,160)))
     
     
     dft=df.transpose()       
     
     ylist=list()
     xlist=list() 
-    for i in range(20,200):
+    for i in range(20,180):
         if i==0:
             ylist.append(i)
         if i>0:
@@ -40,7 +40,7 @@ for filename in files:
     fig, ax = plt.subplots()
     
     resplot=sns.heatmap(dft,yticklabels=ylist)
-    ax.locator_params(nbins=9, axis='y')
+    ax.locator_params(nbins=8, axis='y')
     xlist=map(int,resplot.get_xticks())
 
     #print(xlist)
