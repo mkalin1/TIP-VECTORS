@@ -44,7 +44,7 @@ sqmat=[]
 '''
 
 '''
-df=pd.read_csv('distancematrixMAX.csv',index_col=[0])
+df=pd.read_csv('fixed_original.csv',index_col=[0])
 
 
 

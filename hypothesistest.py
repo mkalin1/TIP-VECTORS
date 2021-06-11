@@ -42,6 +42,7 @@ for i in names:
     matrixA=i.split(" ")[0]+' '+i.split(" ")[1]
     df1 = np.loadtxt(i)
     counts1=np.sum(df1)
+    
     new1=df1/counts1
     for j in names:
         
@@ -51,9 +52,10 @@ for i in names:
         counts2=np.sum(df2)
         new2=df2/counts2
         distance=math.sqrt(np.sum((new1-new2)**2))
+        
         df.at[matrixA,matrixB]=distance
         
-df.to_csv('distancematrix.csv',index = True)
+df.to_csv('new ambuj.csv',index = True)
         
         
 

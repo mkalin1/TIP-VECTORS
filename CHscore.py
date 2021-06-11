@@ -44,7 +44,7 @@ sqmat=[]
 '''
 
 '''
-df=pd.read_csv('distancematrixMAX.csv',index_col=[0])
+df=pd.read_csv('corrmat.csv',index_col=[0])
 
 
 
@@ -52,13 +52,13 @@ df1=np.triu(df)                               # upper triangular
 
 
 
-for i in range(2,30):
+for i in range(2,45):
     A=sklearn.cluster.AgglomerativeClustering(n_clusters=i, affinity='euclidean', memory=None, connectivity=None, compute_full_tree='auto', linkage='ward', distance_threshold=None).fit_predict(df1)
     chscore=sklearn.metrics.calinski_harabasz_score(df, A)
 
     print(i,chscore)
 
-A=sklearn.cluster.AgglomerativeClustering(n_clusters=14, affinity='euclidean', memory=None, connectivity=None, compute_full_tree='auto', linkage='ward', distance_threshold=None).fit_predict(df)
+#A=sklearn.cluster.AgglomerativeClustering(n_clusters=14, affinity='euclidean', memory=None, connectivity=None, compute_full_tree='auto', linkage='ward', distance_threshold=None).fit_predict(df)
 #chscore=sklearn.metrics.calinski_harabasz_score(df, A)
 
 

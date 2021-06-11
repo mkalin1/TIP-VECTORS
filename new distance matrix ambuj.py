@@ -44,7 +44,7 @@ for i in names:
     df1 = np.loadtxt(i)
     counts1=np.sum(df1)
     
-    new1=df1/counts1
+    #new1=df1/counts1
 
     for j in names:
         
@@ -52,13 +52,15 @@ for i in names:
         
         df2 = np.loadtxt(j)
         counts2=np.sum(df2)
-        new2=df2/counts2
-        
-        distance=math.sqrt(np.sum((new1-new2)**2))
+        #new2=df2/counts2
+        #new2=np.transpose(new2)
+        #distance=math.sqrt(np.sum((new1-new2)**2))
+        df3=np.transpose(df2)
+        distance = 1-np.trace(np.dot(df1, df3))/(np.linalg.norm(df1, 'fro')*np.linalg.norm(df2, 'fro'))
         
         df.at[matrixA,matrixB]=distance
-        
-df.to_csv('new ambuj.csv',index = True)
+ 
+df.to_csv('new ambuj 6.csv',index = True)
         
         
 

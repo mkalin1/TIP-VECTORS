@@ -59,7 +59,7 @@ for i in names:
         distance=math.sqrt(np.sum((new1-new2)**2))
         df.at[matrixA,matrixB]=distance
 '''
-df=pd.read_csv('corrmat.csv',index_col=[0])
+df=pd.read_csv('corrmat_sum.csv',index_col=[0])
 
 df.head(1)
 '''
@@ -146,12 +146,11 @@ def give_cluster_assigns(df, numclust,newdict):
             cdict[i]=", ".join(list(cluster_assigns[cluster_assigns==i].index))
     for i in cdict.keys():
         print(cdict[i])
-        newdict[i]=cdict[i].split(', ')
+        newdict[i]=cdict[i]
     return(newdict)
 
-get_clust_graph(df, 21, dataname="Residue Pairs", xticksize=9)
-give_cluster_assigns(df,21,newdict)
-print(newdict)
+get_clust_graph(df, 12, dataname="Residue Pairs", xticksize=9)
+give_cluster_assigns(df,12,newdict)
 
 '''
 files=glob.glob('*-*.txt')

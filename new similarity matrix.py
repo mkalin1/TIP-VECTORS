@@ -11,7 +11,8 @@ import pandas as pd
 from matplotlib.ticker import FuncFormatter
 from sklearn.preprocessing import normalize
 import scipy
-
+import scipy.signal 
+from scipy.stats.stats import pearsonr   
 
 #_, p_b = scipy.stats.ttest_ind(df_a.dropna(axis=0), df_b.dropna(axis=0))
 #_, p_c = scipy.stats.ttest_ind(df_a.dropna(axis=0), df_c.dropna(axis=0))
@@ -37,29 +38,40 @@ for filename in files:
     names.append(filename)
 #print(names)
 sqmat=[]
-
+ddict=dict()
 for i in names:
     
     matrixA=i.split(" ")[0]
     df1 = np.loadtxt(i)
     counts1=np.sum(df1)
     
-    new1=df1/counts1
+    new1=(df1/counts1)
+    #ddict[i]=new1
 
+    #print(new1[0])
+    #print(df1[0])
     for j in names:
         
         matrixB=j.split(" ")[0]
         
         df2 = np.loadtxt(j)
         counts2=np.sum(df2)
-        new2=df2/counts2
+        new2=(df2/counts2)
+        distance=1-np.sum(np.sqrt((new1-new2)**2))
+       
+
+        #distance=np.sqrt((new1-new2)**2)
         
-        distance=math.sqrt(np.sum((new1-new2)**2))
+        #distance=math.sqrt(np.sum((new1-new2)**2))
         
+        #distance=np.corrcoef(new1.ravel(), new2.ravel())
+        #distance=distance[0][1]
+        #fuck=scipy.signal.fftconvolve(new1,new2[::-1, ::-1])
+        #print(fuck)
         df.at[matrixA,matrixB]=distance
+
+df.to_csv('fixed_original_2.csv',index = True)
         
-df.to_csv('new ambuj.csv',index = True)
-        
-        
+
 
 
