@@ -54,7 +54,6 @@ for i in names:
         counts2=np.sum(df2)
         #new2=df2/counts2
         #new2=np.transpose(new2)
-        #distance=math.sqrt(np.sum((new1-new2)**2))
         df3=np.transpose(df2)
         distance = 1-np.trace(np.dot(df1, df3))/(np.linalg.norm(df1, 'fro')*np.linalg.norm(df2, 'fro'))
         

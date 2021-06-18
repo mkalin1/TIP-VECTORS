@@ -14,13 +14,13 @@ from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
 from matplotlib.colors import LogNorm
 files=glob.glob('*-*.txt')
-for filename in files:
-    full = np.loadtxt(filename)
-    hyd=filename.split(' ')[2]
-    anglemean=filename.split(' ')[3]
-    anglevar=filename.split(' ')[4]
-    distmean=filename.split(' ')[5]
-    distvar=filename[:-4].split(' ')[6]
+for filename in files[:5]:
+    full = np.loadtxt(filename)[:, 20:180]
+    resname=filename.split(" ")[0]
+    #anglemean=filename.split(' ')[3]
+    #anglevar=filename.split(' ')[4]
+    #distmean=filename.split(' ')[5]
+    #distvar=filename[:-4].split(' ')[6]
 
 
     counts=np.sum(full)
@@ -31,18 +31,18 @@ for filename in files:
     #xmax,xmin=full.max(),full.min()
     #full=(full-xmin)/(xmax-xmin)
     
-    df=pd.DataFrame(data=new,index=np.array(range(0,90)),columns=np.array(range(0,20)))
+    df=pd.DataFrame(data=new,index=np.array(range(0,360)),columns=np.array(range(0,160)))
     
     
     dft=df.transpose()       
     
     ylist=list()
     xlist=list() 
-    for i in range(0,20):
+    for i in range(20,180):
         if i==0:
             ylist.append(i)
         if i>0:
-            ylist.append(i/2)
+            ylist.append(i/20)
     
     #fig, ax = plt.subplots()
     fig = plt.figure()
