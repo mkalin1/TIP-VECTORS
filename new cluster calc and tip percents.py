@@ -79,11 +79,12 @@ def pull_clusters(filename, cutoff_val, chain_id,fdict2,nhyd):
         rescount.append(len(store[i]))                               # number of atoms in cluster (used for hydrophobicity% calculation)
     
     for i in storevec.keys():
-        try:
-            tipdict[i.get_parent().get_name()].append([i.get_name()])
-        except KeyError:
-            tipdict[i.get_parent().get_name()]=list()
-            tipdict[i.get_parent().get_name()].append([i.get_name()])
+        if (i.get_parent().get_name()=='PRO'):
+            try:
+                tipdict[i.get_parent().get_name()].append([i.get_name()])
+            except KeyError:
+                tipdict[i.get_parent().get_name()]=list()
+                tipdict[i.get_parent().get_name()].append([i.get_name()])
 
 
     
@@ -101,7 +102,7 @@ def pull_clusters(filename, cutoff_val, chain_id,fdict2,nhyd):
     
     for i in clusterhyd.keys():
         
-        hydperc.append(clusterhyd[i][0]/(clusterhyd[i][1]*rescount[i]))                                             # % hydrophobicity
+        hydperc.append(clusterhyd[i][0]/(9.00*rescount[i]))                                             # % hydrophobicity
     
     
    
@@ -209,13 +210,13 @@ fdict2={'ARG-ARG':list(), 'ARG-ASN':list(), 'ARG-ASP':list(), 'ARG-CYS':list(), 
 tipdict={'GLY': list(), 'ASP': list(), 'THR': list(), 'PHE': list(), 'ILE': list(), 'ARG': list(), 'HIS': list(), 'ALA': list(), 'LEU': list(), 'GLU': list(), 'LYS': list(), 'VAL': list(), 'PRO': list(), 'SER': list(), 'GLN': list(), 'TYR': list(), 'TRP': list(), 'ASN': list(), 'CYS': list(), 'MET': list()}
 nhyd=dict()
 counter=0
-for i,k in enumerate(names[:100]):
+for i,k in enumerate(names[:5]):
 
     #print(i)
     #out,fdict2,nhyd = pull_clusters(k+'.pdb', 10.0, "A",fdict2,nhyd)
     try:   
     #fdict2,nhyd = pull_clusters(k+'.pdb', 12.0, "A",fdict2,nhyd)
-        fdict2,nhyd,tipdict = pull_clusters(k+'.pdb', 10.0, "A",fdict2,nhyd)  #Here are all your clusters with ids -number of hydrophobic residue/number of hydrophilic residues
+        fdict2,nhyd,tipdict = pull_clusters(k+'.pdb', 9.0, "A",fdict2,nhyd)  #Here are all your clusters with ids -number of hydrophobic residue/number of hydrophilic residues
     except:
         counter=counter+1
         print(i, k, counter)
