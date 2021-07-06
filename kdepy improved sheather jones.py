@@ -9,13 +9,12 @@ from sklearn.cluster import SpectralClustering
 import glob
 from scipy.stats import gaussian_kde
 import pandas as pd
-import KDEpy
-from KDEpy import FFTKDE
+
 files=glob.glob('LEU-VAL*.txt')
 for filename in files:
     #newarr=[]
     newarr2=[]
-    binned = numpy.loadtxt(filename,dtype=int)
+    binned = numpy.loadtxt(filename,dtype=int)[:, 20:180]
     x=[]
     y=[]
     z=[]
