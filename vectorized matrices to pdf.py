@@ -21,6 +21,8 @@ def FileList(files,df):
         fdict={}
         
         binned = numpy.loadtxt(filename,dtype=int)[:, 20:180]
+        counts=numpy.sum(binned)
+        new=binned/counts
         x=[]
         y=[]
         z=[]
@@ -28,7 +30,7 @@ def FileList(files,df):
             for j in range(0,160):
                 angle=i/2
                 distance=1+(j/20)
-                intensity=binned[i][j]
+                intensity=new[i][j]
                 fdict[(angle,distance)]=intensity
         
                 #newarr2.append([(angle,distance,intensity)])
